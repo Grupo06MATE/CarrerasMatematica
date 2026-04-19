@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MATECARRERAS 3D</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="introScreen" class="intro-screen">
+    <div class="intro-bg intro-bg-a"></div>
+    <div class="intro-bg intro-bg-b"></div>
+    <div class="intro-grid"></div>
+
+    <div class="intro-card">
+      <div class="intro-logo-wrap">
+        <img id="introLogo" class="intro-logo hidden" alt="Logo del juego" data-logo-src="">
+        <h1 id="introLogoFallback" class="intro-logo-fallback">MATECARRERAS 3D</h1>
+      </div>
+
+      <p class="intro-group-title">Grupo 6</p>
+      <p class="intro-group-authors">Juego Creado por Pablo Osorno, Luis Zeledon, Carolina Zuñiga, Kendall Rodriguez</p>
+
+      <p class="intro-loading-text">Cargando...</p>
+      <div class="intro-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="introProgressFill" class="intro-progress-fill"></div>
+      </div>
+      <p id="introProgressValue" class="intro-progress-value">0%</p>
+    </div>
+  </div>
+
+  <div class="app-bg">
+    <div class="aurora aurora-a"></div>
+    <div class="aurora aurora-b"></div>
+    <div class="grid-glow"></div>
+  </div>
+
+  <main class="app">
+    <section id="startScreen" class="screen start-screen">
+      <div class="hero-card">
+        <p class="eyebrow">Arcade de algebra lineal futurista</p>
+        <h1>MATECARRERAS 3D</h1>
+        <p class="hero-copy">
+          Es un placer darles la bienvenida a nuestro juego, una experiencia unica que combina la emocion de las carreras con retos de algebra lineal.
+          Corre en una autopista de circuito, activa turbo, esquiva camiones y vence jefes academicos
+          en ciudad, desierto, nieve y selva.
+        </p>
+
+        <div class="dashboard-team-photo-wrap">
+          <img class="dashboard-team-photo" width="500px" height="500px" src="assets/GroupPicture/FotoGrupalFinal.png" alt="Foto del Grupo 6">
+        </div>
+
+        <div class="dashboard-info-toggle-row">
+          <button id="startGameBtn" class="primary-btn" type="button">Iniciar carrera</button>
+          <button id="toggleInfoBtn" class="secondary-btn dashboard-info-btn" type="button" aria-expanded="false" aria-controls="dashboardInfoPanel">+ Informacion de la jugabilidad de nuestro juego</button>
+         <button id="toggleAudioBtn" class="secondary-btn" type="button">Sonido: ON</button>
+      </div>
+
+        <div id="dashboardInfoPanel" class="dashboard-info-panel hidden">
+          <p class="dashboard-info-copy">
+            MATECARRERAS 3D mezcla carreras arcade con desafios de algebra lineal: avanzas por biomas, juntas monedas,
+            activas turbo y respondes preguntas para sobrevivir choques y derrotar jefes.
+          </p>
+
+          <div class="feature-grid feature-grid-info">
+            <article>
+              <strong>3D arcade</strong>
+              <span>Pista pseudo-3D, dia y noche, clima dinamico y luces.</span>
+            </article>
+            <article>
+              <strong>Retos y progreso</strong>
+              <span>Misiones, jefes al final de nivel, escudos y vidas extra.</span>
+            </article>
+            <article>
+              <strong>Control total</strong>
+              <span>Joystick tactil, flechas visuales, teclado responsivo y turbo funcional.</span>
+            </article>
+          </div>
+
+         
+          <p id="selectedPlayerName" class="selected-player-name">Jugador: sin registrar</p>
+
+          <div class="start-footer">
+            <div class="legend-pill">Mover: flechas en pantalla o teclado</div>
+            <div class="legend-pill">Turbo: botón turbo o tecla T</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen hidden">
+      <header class="topbar">
+        <div class="brand-block">
+          <p class="eyebrow">Circuito infinito</p>
+          <h2>MATECARRERAS 3D</h2>
+        </div>
+
+        <div class="topbar-meta">
+          <div class="meta-pill"><span>Nivel</span><strong id="levelValue">1</strong></div>
+          <div class="meta-pill"><span>Mapa</span><strong id="mapValue">Ciudad</strong></div>
+          <div class="meta-pill"><span>Clima</span><strong id="weatherValue">Soleado</strong></div>
+        </div>
+      </header>
+
+      <section class="arena-layout">
+        <div class="track-column">
+          <div class="status-banner">
+            <div>
+              <span id="missionLabel">Misión: responde 5 bien seguidas</span>
+              <strong id="statusLabel">Esperando salida</strong>
+            </div>
+            <div class="status-inline">
+              <span>Recorrido</span>
+              <strong id="levelProgressText">0 / 100</strong>
+            </div>
+          </div>
+
+          <div class="canvas-shell">
+            <canvas id="gameCanvas" width="960" height="540"></canvas>
+            <div class="hud-rail left-rail">
+              <div class="rail-chip"><span>Vidas</span><strong id="livesValue">3</strong></div>
+              <div class="rail-chip"><span>Tiempo</span><strong id="timerValue">75</strong></div>
+            </div>
+
+            <div class="hud-rail right-rail">
+              <div class="rail-chip"><span>Puntos</span><strong id="scoreValue">0</strong></div>
+              <div class="rail-chip"><span>Combo</span><strong id="comboValue">x1</strong></div>
+              <div class="rail-chip"><span>Monedas</span><strong id="coinsValue">0</strong></div>
+            </div>
+
+            <div id="countdownOverlay" class="countdown-overlay hidden"></div>
+            <button id="extraLifeOfferBtn" class="extra-life-offer hidden" type="button">
+              <span class="extra-life-offer-label">8 monedas listas</span>
+              <strong id="extraLifeOfferText">Toca aqui para +1 vida</strong>
+            </button>
+            <div class="canvas-overlay top-fade"></div>
+            <div class="canvas-overlay bottom-fade"></div>
+          </div>
+
+          <div class="controls-panel">
+            <div class="arrow-pad">
+              <button id="leftControl" class="arrow-btn left" type="button" aria-label="Mover a la izquierda">
+                <span></span>
+              </button>
+              <button id="rightControl" class="arrow-btn right" type="button" aria-label="Mover a la derecha">
+                <span></span>
+              </button>
+            </div>
+
+            <div class="hud-bars-vertical">
+              <div class="vertical-meter-box">
+                <span>Turbo</span>
+                <div class="meter meter-vertical turbo-vertical">
+                  <div id="turboMeterFill" class="meter-fill"></div>
+                </div>
+              </div>
+              <div class="vertical-meter-box">
+                <span>Nivel</span>
+                <div class="meter meter-vertical level-progress-meter">
+                  <div id="levelProgressFill" class="meter-fill level-progress-fill"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="turbo-actions">
+              <button id="turboControl" class="turbo-control" type="button">Turbo</button>
+              <button id="stopTurboControl" class="secondary-btn stop-turbo-control" type="button">Detener turbo</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="side-column">
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Mapa completo</h3>
+              <span id="progressValue">0%</span>
+            </div>
+            <div id="worldMap" class="world-map"></div>
+          </section>
+
+          <section id="rankingPanel" class="panel">
+            <div class="panel-head">
+              <h3>Ranking</h3>
+              <button id="clearRankingBtn" class="mini-btn" type="button">Limpiar</button>
+            </div>
+            <ol id="rankingList" class="ranking-list"></ol>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Objetivos</h3>
+            </div>
+            <ul class="mission-list">
+              <li id="bossInfo">Jefe: pendiente</li>
+              <li id="rewardInfo">Vida extra cada 30 monedas</li>
+              <li id="shieldInfo">Escudo al cumplir misión</li>
+            </ul>
+          </section>
+        </aside>
+      </section>
+    </section>
+  </main>
+
+  <div id="namePromptModal" class="modal hidden">
+    <div class="modal-card name-prompt-card">
+      <p class="eyebrow">Identificacion de piloto</p>
+      <h3>Escriba su nombre</h3>
+      <p class="hero-copy">El nombre que usted escriba se usara para el ranking global.</p>
+      <label for="preGamePlayerName">Nombre del jugador</label>
+      <input id="preGamePlayerName" maxlength="14" placeholder="Ejemplo: Mateo" autocomplete="nickname">
+      <p id="namePromptError" class="name-prompt-error hidden">Escribe un nombre valido para continuar.</p>
+      <div class="result-actions">
+        <button id="confirmPlayerNameBtn" class="primary-btn" type="button">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizModal" class="modal quiz-modal hidden">
+    <div class="modal-card">
+      <p class="eyebrow">Desafio de algebra lineal</p>
+      <h3 id="quizTitle">Pregunta</h3>
+      <p id="questionText" class="question-text"></p>
+      <div id="answers" class="answers-grid"></div>
+    </div>
+  </div>
+
+  <div id="bossModal" class="modal quiz-modal hidden">
+    <div class="modal-card boss-card">
+      <p class="eyebrow">Jefe del circuito</p>
+      <h3 id="bossTitle">Reto final</h3>
+      <p id="bossText" class="question-text"></p>
+      <div id="bossAnswers" class="answers-grid"></div>
+      <p id="bossProgressText" class="boss-progress"></p>
+    </div>
+  </div>
+
+  <div id="levelTransitionModal" class="modal hidden">
+    <div class="modal-card transition-card">
+      <p class="eyebrow">Cambio de bioma</p>
+      <h3 id="nextBiomeTitle">Lo estas haciendo bien</h3>
+      <p id="nextBiomeText">Te teletransportaremos ahora al siguiente nivel.</p>
+      <div class="result-actions">
+        <button id="nextBiomeBtn" class="primary-btn" type="button">Siguiente bioma</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOverModal" class="modal hidden">
+  <div class="modal-card result-card">
+    <p class="eyebrow">Resumen de carrera</p>
+    <h3 id="resultTitle">Fin del juego</h3>
+    <p id="resultText">Tu recorrido terminó.</p>
+
+    <div class="result-grid">
+      <span>Puntos <strong id="finalScore">0</strong></span>
+      <span>Monedas <strong id="finalCoins">0</strong></span>
+      <span>Nivel <strong id="finalLevel">1</strong></span>
+    </div>
+
+    <label for="playerName">Nombre para el ranking</label>
+    <input id="playerName" maxlength="14" placeholder="Piloto pro">
+
+    <h4>🏆 Top 10</h4>
+    <ol id="ranking-list"></ol>
+
+    <div class="result-actions">
+      <button id="saveScoreBtn" class="secondary-btn" type="button">Guardar ranking</button>
+      <button id="viewLiveRankingBtn" class="secondary-btn" type="button">Ver ranking en directo</button>
+    </div>
+  </div>
+</div>
+
+  <audio id="startThemeAudio" src="assets/music/GOTMUSIC.mp3" preload="auto" loop autoplay muted></audio>
+  <audio id="levelOneThemeAudio" src="assets/music/Don Omar ft. Tego Calderon - Bandolero (Letra).mp3" preload="auto" loop></audio>
+  <audio id="levelTwoThemeAudio" src="assets/music/GCN Dry Dry Desert - Mario Kart 8 .mp3" preload="auto" loop></audio>
+  <audio id="levelThreeThemeAudio" src="assets/music/N64 Frappe Snowland .mp3" preload="auto" loop></audio>
+  <audio id="levelFourThemeAudio" src="assets/music/Mario Kart 7 - DK Jungle.mp3" preload="auto" loop></audio>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
