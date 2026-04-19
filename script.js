@@ -118,22 +118,24 @@ const deviceMemoryGb = Number(navigator.deviceMemory || 4);
 const deviceCores = Number(navigator.hardwareConcurrency || 4);
 const lowPerformanceDevice = isLikelyMobileDevice && (deviceMemoryGb <= 4 || deviceCores <= 6);
 const PERF = {
-  maxDpr: lowPerformanceDevice ? 1.5 : 2,
-  frameIntervalMs: lowPerformanceDevice ? 1000 / 50 : 1000 / 60,
-  hudIntervalMs: lowPerformanceDevice ? 120 : 70,
-  weatherSpawnChance: lowPerformanceDevice ? 0.09 : 0.18,
-  maxWeatherParticles: lowPerformanceDevice ? 80 : 150,
-  maxParticles: lowPerformanceDevice ? 70 : 140,
-  roadSegments: lowPerformanceDevice ? 26 : 36,
-  enableExpensiveEffects: !lowPerformanceDevice
+  maxDpr: isLikelyMobileDevice ? 1 : 2,
+  frameIntervalMs: 1000 / 60,
+  hudIntervalMs: isLikelyMobileDevice ? 180 : (lowPerformanceDevice ? 120 : 70),
+  weatherSpawnChance: isLikelyMobileDevice ? 0.03 : (lowPerformanceDevice ? 0.09 : 0.18),
+  maxWeatherParticles: isLikelyMobileDevice ? 20 : (lowPerformanceDevice ? 80 : 150),
+  maxParticles: isLikelyMobileDevice ? 24 : (lowPerformanceDevice ? 70 : 140),
+  roadSegments: isLikelyMobileDevice ? 14 : (lowPerformanceDevice ? 26 : 36),
+  enableExpensiveEffects: !isLikelyMobileDevice && !lowPerformanceDevice
 };
 const MOBILE_TUNING = {
-  hazardIntervalBonus: isLikelyMobileDevice ? 0.18 : 0,
-  pickupIntervalBonus: isLikelyMobileDevice ? 0.08 : 0,
-  maxActiveHazards: isLikelyMobileDevice ? 2 : 3,
-  maxActivePickups: isLikelyMobileDevice ? 3 : 2,
-  collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.9 : SAFE_COLLISION_SCALE
+  hazardIntervalBonus: isLikelyMobileDevice ? 0.26 : 0,
+  pickupIntervalBonus: isLikelyMobileDevice ? 0.14 : 0,
+  maxActiveHazards: isLikelyMobileDevice ? 1 : 3,
+  maxActivePickups: isLikelyMobileDevice ? 2 : 2,
+  collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.86 : SAFE_COLLISION_SCALE
 };
+let mobileSlowFrameCount = 0;
+let mobilePerfDegraded = false;
 
 const audioController = createAudioController({
   state,
@@ -275,6 +277,24 @@ function resizeCanvas() {
   canvas.width = Math.round(rect.width * ratio);
   canvas.height = Math.round(rect.height * ratio);
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function degradeMobilePerformanceMode() {
+  if (!isLikelyMobileDevice || mobilePerfDegraded) {
+    return;
+  }
+  mobilePerfDegraded = true;
+  PERF.maxDpr = 1;
+  PERF.frameIntervalMs = 1000 / 30;
+  PERF.hudIntervalMs = 220;
+  PERF.weatherSpawnChance = 0.015;
+  PERF.maxWeatherParticles = 10;
+  PERF.maxParticles = 14;
+  PERF.roadSegments = 10;
+  PERF.enableExpensiveEffects = false;
+  state.particles = state.particles.slice(-10);
+  state.weatherParticles = state.weatherParticles.slice(-8);
+  resizeCanvas();
 }
 
 function showModal(modal) {
@@ -1997,6 +2017,18 @@ function animate(timestamp) {
   if (lastPresentedFrameAt && timestamp - lastPresentedFrameAt < PERF.frameIntervalMs) {
     requestAnimationFrame(animate);
     return;
+  }
+  if (isLikelyMobileDevice && lastPresentedFrameAt) {
+    const presentedDeltaMs = timestamp - lastPresentedFrameAt;
+    if (presentedDeltaMs > 34) {
+      mobileSlowFrameCount += 1;
+    } else if (mobileSlowFrameCount > 0) {
+      mobileSlowFrameCount -= 1;
+    }
+    if (mobileSlowFrameCount >= 8) {
+      degradeMobilePerformanceMode();
+      mobileSlowFrameCount = 0;
+    }
   }
   lastPresentedFrameAt = timestamp;
 
