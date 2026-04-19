@@ -1,6 +1,8 @@
 export const STORAGE_KEY = "matecarreras-3d-ranking";
 export const lanes = [-0.66, 0, 0.66];
 export const FIXED_SPAWN_INTERVAL = 0.46;
+export const HAZARD_SPAWN_INTERVAL = 0.5;
+export const PICKUP_SPAWN_INTERVAL = 0.82;
 export const PLAYER_DRAW_Z = 0.82;
 export const BASE_WORLD_SPEED = 0.58;
 export const LEVEL_TRAVEL_RATE = 1.42;
@@ -86,7 +88,7 @@ export const levels = [
     map: "Selva",
     weather: "Tormenta",
     timeOfDay: "Noche",
-    mission: "Consigue 2 escudos",
+    mission: "Recoge 12 monedas",
     trackLength: 104,
     timeLimit: 68,
     bossRounds: 4,
@@ -113,9 +115,7 @@ export const obstacleTypes = {
   hole: { kind: "hazard", color: "#090909", width: 0.11, height: 0.14 },
   truck: { kind: "hazard", color: "#5cc8ff", width: 0.15, height: 0.18 },
   coin: { kind: "coin", color: "#ffd166", width: 0.082, height: 0.13 },
-  shield: { kind: "shield", color: "#77ff99", width: 0.07, height: 0.1 },
-  turbo: { kind: "turbo", color: "#ff8c42", width: 0.07, height: 0.1 },
-  wildcard: { kind: "quiz", color: "#45d6ff", width: 0.09, height: 0.14 }
+  turbo: { kind: "turbo", color: "#ff8c42", width: 0.07, height: 0.1 }
 };
 
 export const obstacleSpriteFiles = {
@@ -156,7 +156,6 @@ export const state = {
   comboMultiplier: 1,
   coins: 0,
   lives: 3,
-  shields: 0,
   timer: levels[0].timeLimit,
   playerX: lanes[1],
   playerLane: 1,
@@ -167,15 +166,20 @@ export const state = {
   particles: [],
   weatherParticles: [],
   spawnCooldown: FIXED_SPAWN_INTERVAL,
+  hazardSpawnCooldown: HAZARD_SPAWN_INTERVAL,
+  pickupSpawnCooldown: PICKUP_SPAWN_INTERVAL,
   lastFrame: 0,
   turbo: 0,
   turboActiveUntil: 0,
-  extraLifeMilestone: 30,
+  extraLifeOfferStep: 10,
+  nextExtraLifeOfferCoins: 10,
+  extraLifeOffers: 0,
+  extraLifeEarnedThisBiome: 0,
+  extraLifeMaxPerBiome: 2,
   missionCompleted: false,
   missionProgress: 0,
   streakCorrect: 0,
   turbosUsedLevel: 0,
-  shieldsCollectedLevel: 0,
   levelBossStarted: false,
   bossReady: false,
   bossRound: 0,

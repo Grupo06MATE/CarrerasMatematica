@@ -119,7 +119,6 @@
             <canvas id="gameCanvas" width="960" height="540"></canvas>
             <div class="hud-rail left-rail">
               <div class="rail-chip"><span>Vidas</span><strong id="livesValue">3</strong></div>
-              <div class="rail-chip"><span>Escudos</span><strong id="shieldValue">0</strong></div>
               <div class="rail-chip"><span>Tiempo</span><strong id="timerValue">75</strong></div>
             </div>
 
@@ -130,6 +129,10 @@
             </div>
 
             <div id="countdownOverlay" class="countdown-overlay hidden"></div>
+            <button id="extraLifeOfferBtn" class="extra-life-offer hidden" type="button">
+              <span class="extra-life-offer-label">8 monedas listas</span>
+              <strong id="extraLifeOfferText">Toca aqui para +1 vida</strong>
+            </button>
             <div class="canvas-overlay top-fade"></div>
             <div class="canvas-overlay bottom-fade"></div>
           </div>

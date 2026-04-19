@@ -5,11 +5,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[2,1],[0,3]]. Cual es el polinomio caracteristico de A?",
-    options: ["(lambda-2)(lambda-3)", "(lambda+2)(lambda+3)", "lambda^2-5lambda+5", "lambda^2+5lambda+6"],
+    options: ["(λ-2)(λ-3)", "(λ+2)(λ+3)", "λ^2-5λ+5", "λ^2+5λ+6"],
     correctIndex: 0,
-    correctAnswer: "(lambda-2)(lambda-3)",
+    correctAnswer: "(λ-2)(λ-3)",
     explanation:
-      "El polinomio caracteristico es det(A-lambda I) = (2-lambda)(3-lambda), equivalente a (lambda-2)(lambda-3)."
+      "El polinomio caracteristico es det(A-λ I) = (2-λ)(3-λ), equivalente a (λ-2)(λ-3)."
   },
   {
     id: "N1-002",
@@ -17,11 +17,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[1,2],[0,4]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-5lambda+4", "lambda^2+5lambda+4", "lambda^2-3lambda+4", "(lambda+1)(lambda+4)"],
+    options: ["λ^2-5λ+4", "λ^2+5λ+4", "λ^2-3λ+4", "(λ+1)(λ+4)"],
     correctIndex: 0,
-    correctAnswer: "lambda^2-5lambda+4",
+    correctAnswer: "λ^2-5λ+4",
     explanation:
-      "Al ser triangular, los valores de la diagonal dan (1-lambda)(4-lambda) = lambda^2 - 5lambda + 4."
+      "Al ser triangular, los valores de la diagonal dan (1-λ)(4-λ) = λ^2 - 5λ + 4."
   },
   {
     id: "N1-003",
@@ -29,11 +29,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[0,1],[-2,3]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-3lambda+2", "lambda^2+3lambda-2", "lambda^2-lambda-2", "lambda^2+2lambda-3"],
+    options: ["λ^2-3λ+2", "λ^2+3λ-2", "λ^2-λ-2", "λ^2+2λ-3"],
     correctIndex: 0,
-    correctAnswer: "lambda^2-3lambda+2",
+    correctAnswer: "λ^2-3λ+2",
     explanation:
-      "det([-lambda, 1], [-2, 3-lambda]) = (-lambda)(3-lambda) - (-2)(1) = lambda^2 - 3lambda + 2."
+      "det([-λ, 1], [-2, 3-λ]) = (-λ)(3-λ) - (-2)(1) = λ^2 - 3λ + 2."
   },
   {
     id: "N1-004",
@@ -41,11 +41,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[-1,0],[0,-1]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-2lambda+1", "lambda^2+2lambda+1", "lambda^2-1", "lambda^2+1"],
+    options: ["λ^2-2λ+1", "λ^2+2λ+1", "λ^2-1", "λ^2+1"],
     correctIndex: 1,
-    correctAnswer: "lambda^2+2lambda+1",
+    correctAnswer: "λ^2+2λ+1",
     explanation:
-      "det(A-lambda I) = (-1-lambda)(-1-lambda) = (lambda+1)^2 = lambda^2 + 2lambda + 1."
+      "det(A-λ I) = (-1-λ)(-1-λ) = (λ+1)^2 = λ^2 + 2λ + 1."
   },
   {
     id: "N1-005",
@@ -53,11 +53,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[5,4],[1,2]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-7lambda+6", "lambda^2+7lambda+6", "lambda^2-7lambda+10", "lambda^2-3lambda+6"],
+    options: ["λ^2-7λ+6", "λ^2+7λ+6", "λ^2-7λ+10", "λ^2-3λ+6"],
     correctIndex: 0,
-    correctAnswer: "lambda^2-7lambda+6",
+    correctAnswer: "λ^2-7λ+6",
     explanation:
-      "det(A-lambda I) = (5-lambda)(2-lambda) - 4 = lambda^2 - 7lambda + 10 - 4 = lambda^2 - 7lambda + 6."
+      "det(A-λ I) = (5-λ)(2-λ) - 4 = λ^2 - 7λ + 10 - 4 = λ^2 - 7λ + 6."
   },
   {
     id: "N1-006",
@@ -65,11 +65,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[3,1],[-2,0]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-3lambda-2", "lambda^2+3lambda+2", "lambda^2-3lambda+2", "lambda^2-lambda+2"],
+    options: ["λ^2-3λ-2", "λ^2+3λ+2", "λ^2-3λ+2", "λ^2-λ+2"],
     correctIndex: 2,
-    correctAnswer: "lambda^2-3lambda+2",
+    correctAnswer: "λ^2-3λ+2",
     explanation:
-      "det(A-lambda I) = (3-lambda)(-lambda) - (-2) = -3lambda + lambda^2 + 2 = lambda^2 - 3lambda + 2."
+      "det(A-λ I) = (3-λ)(-λ) - (-2) = -3λ + λ^2 + 2 = λ^2 - 3λ + 2."
   },
   {
     id: "N1-007",
@@ -77,10 +77,10 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[0,0],[0,0]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda", "lambda^2", "lambda-1", "lambda^2-1"],
+    options: ["λ", "λ^2", "λ-1", "λ^2-1"],
     correctIndex: 1,
-    correctAnswer: "lambda^2",
-    explanation: "Al ser la matriz nula, det(-lambda I) = (-lambda)(-lambda) = lambda^2."
+    correctAnswer: "λ^2",
+    explanation: "Al ser la matriz nula, det(-λ I) = (-λ)(-λ) = λ^2."
   },
   {
     id: "N1-008",
@@ -88,10 +88,10 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[2,-1],[1,0]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-2lambda+1", "lambda^2+2lambda-1", "lambda^2-lambda+2", "lambda^2-2lambda-1"],
+    options: ["λ^2-2λ+1", "λ^2+2λ-1", "λ^2-λ+2", "λ^2-2λ-1"],
     correctIndex: 0,
-    correctAnswer: "lambda^2-2lambda+1",
-    explanation: "det(A-lambda I) = (2-lambda)(-lambda) - (-1) = lambda^2 - 2lambda + 1."
+    correctAnswer: "λ^2-2λ+1",
+    explanation: "det(A-λ I) = (2-λ)(-λ) - (-1) = λ^2 - 2λ + 1."
   },
   {
     id: "N1-009",
@@ -99,11 +99,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "facil",
     question: "Sea A = [[4,-2],[1,1]]. Cual es el polinomio caracteristico de A?",
-    options: ["lambda^2-5lambda+2", "lambda^2-5lambda+6", "lambda^2+5lambda+6", "lambda^2-4lambda+6"],
+    options: ["λ^2-5λ+2", "λ^2-5λ+6", "λ^2+5λ+6", "λ^2-4λ+6"],
     correctIndex: 1,
-    correctAnswer: "lambda^2-5lambda+6",
+    correctAnswer: "λ^2-5λ+6",
     explanation:
-      "det(A-lambda I) = (4-lambda)(1-lambda) - (-2) = lambda^2 - 5lambda + 4 + 2 = lambda^2 - 5lambda + 6."
+      "det(A-λ I) = (4-λ)(1-λ) - (-2) = λ^2 - 5λ + 4 + 2 = λ^2 - 5λ + 6."
   },
   {
     id: "N1-010",
@@ -112,15 +112,15 @@ const QUESTION_BANK = [
     difficulty: "medio",
     question: "Sea A = [[1,0,0],[0,2,0],[0,0,3]]. Cual es el polinomio caracteristico de A?",
     options: [
-      "-(lambda-1)(lambda-2)(lambda-3)",
-      "(lambda+1)(lambda+2)(lambda+3)",
-      "-lambda^3-6lambda^2-11lambda-6",
-      "-(lambda-1)(lambda+2)(lambda-3)"
+      "-(λ-1)(λ-2)(λ-3)",
+      "(λ+1)(λ+2)(λ+3)",
+      "-λ^3-6λ^2-11λ-6",
+      "-(λ-1)(λ+2)(λ-3)"
     ],
     correctIndex: 0,
-    correctAnswer: "-(lambda-1)(lambda-2)(lambda-3)",
+    correctAnswer: "-(λ-1)(λ-2)(λ-3)",
     explanation:
-      "En una matriz diagonal 3x3, el polinomio es -(lambda-a11)(lambda-a22)(lambda-a33)."
+      "En una matriz diagonal 3x3, el polinomio es -(λ-a11)(λ-a22)(λ-a33)."
   },
   {
     id: "N1-011",
@@ -128,11 +128,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "medio",
     question: "Sea A = [[2,1,0],[0,2,0],[0,0,1]]. Cual es el polinomio caracteristico de A?",
-    options: ["-(lambda-2)(lambda-1)^2", "-(lambda-2)^2(lambda-1)", "(lambda-2)^2(lambda-1)", "-(lambda+2)^2(lambda+1)"],
+    options: ["-(λ-2)(λ-1)^2", "-(λ-2)^2(λ-1)", "(λ-2)^2(λ-1)", "-(λ+2)^2(λ+1)"],
     correctIndex: 1,
-    correctAnswer: "-(lambda-2)^2(lambda-1)",
+    correctAnswer: "-(λ-2)^2(λ-1)",
     explanation:
-      "La matriz es triangular superior. Su determinante se calcula multiplicando los elementos de la diagonal principal restados por lambda."
+      "La matriz es triangular superior. Su determinante se calcula multiplicando los elementos de la diagonal principal restados por λ."
   },
   {
     id: "N1-012",
@@ -140,11 +140,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "medio",
     question: "Sea A = [[0,1,0],[0,0,1],[1,0,0]]. Cual es el polinomio caracteristico de A?",
-    options: ["-lambda^3-1", "-lambda^3+1", "lambda^3-1", "-lambda^3+lambda"],
+    options: ["-λ^3-1", "-λ^3+1", "λ^3-1", "-λ^3+λ"],
     correctIndex: 1,
-    correctAnswer: "-lambda^3+1",
+    correctAnswer: "-λ^3+1",
     explanation:
-      "Al calcular el determinante por cofactores, se obtiene det(A-lambda I) = -lambda(lambda^2) + 1(1) = -lambda^3 + 1."
+      "Al calcular el determinante por cofactores, se obtiene det(A-λ I) = -λ(λ^2) + 1(1) = -λ^3 + 1."
   },
   {
     id: "N1-013",
@@ -152,11 +152,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "medio",
     question: "Sea A = [[-1,0,0],[0,1,1],[0,0,1]]. Cual es el polinomio caracteristico de A?",
-    options: ["-(lambda-1)(lambda+1)^2", "-(lambda+1)(lambda-1)^2", "(lambda+1)(lambda-1)^2", "-(lambda+1)^3"],
+    options: ["-(λ-1)(λ+1)^2", "-(λ+1)(λ-1)^2", "(λ+1)(λ-1)^2", "-(λ+1)^3"],
     correctIndex: 1,
-    correctAnswer: "-(lambda+1)(lambda-1)^2",
+    correctAnswer: "-(λ+1)(λ-1)^2",
     explanation:
-      "Al ser triangular por bloques, se multiplican los factores de la diagonal: (-1-lambda)(1-lambda)(1-lambda)."
+      "Al ser triangular por bloques, se multiplican los factores de la diagonal: (-1-λ)(1-λ)(1-λ)."
   },
   {
     id: "N1-014",
@@ -164,9 +164,9 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "dificil",
     question: "Sea A = [[1,2,3],[0,1,2],[0,0,1]]. Cual es el polinomio caracteristico de A?",
-    options: ["-(lambda-1)^3", "(lambda-1)^3", "-(lambda+1)^3", "-lambda^3+1"],
+    options: ["-(λ-1)^3", "(λ-1)^3", "-(λ+1)^3", "-λ^3+1"],
     correctIndex: 0,
-    correctAnswer: "-(lambda-1)^3",
+    correctAnswer: "-(λ-1)^3",
     explanation:
       "Es una matriz triangular superior, los valores de la diagonal son todos 1, generando el factor cubico negativo."
   },
@@ -176,11 +176,11 @@ const QUESTION_BANK = [
     topic: "polinomio_caracteristico",
     difficulty: "dificil",
     question: "Sea A = [[2,2,0],[2,2,0],[0,0,1]]. Cual es el polinomio caracteristico de A?",
-    options: ["-lambda^3+5lambda^2-4lambda", "-lambda^3-5lambda^2+4lambda", "lambda^3-5lambda^2+4lambda", "-lambda^3+4lambda^2-5lambda"],
+    options: ["-λ^3+5λ^2-4λ", "-λ^3-5λ^2+4λ", "λ^3-5λ^2+4λ", "-λ^3+4λ^2-5λ"],
     correctIndex: 0,
-    correctAnswer: "-lambda^3+5lambda^2-4lambda",
+    correctAnswer: "-λ^3+5λ^2-4λ",
     explanation:
-      "El determinante es (1-lambda)*[(2-lambda)^2 - 4] = (1-lambda)*(lambda^2 - 4lambda) = -lambda^3 + 5lambda^2 - 4lambda."
+      "El determinante es (1-λ)*[(2-λ)^2 - 4] = (1-λ)*(λ^2 - 4λ) = -λ^3 + 5λ^2 - 4λ."
   },
   {
     id: "N2-001",
@@ -213,7 +213,7 @@ const QUESTION_BANK = [
     options: ["1 y 2", "-1 y -2", "0 y 3", "-2 y 3"],
     correctIndex: 0,
     correctAnswer: "1 y 2",
-    explanation: "El polinomio caracteristico es lambda^2 - 3lambda + 2 = 0, cuyas raices son 1 y 2."
+    explanation: "El polinomio caracteristico es λ^2 - 3λ + 2 = 0, cuyas raices son 1 y 2."
   },
   {
     id: "N2-004",
@@ -236,7 +236,7 @@ const QUESTION_BANK = [
     correctIndex: 0,
     correctAnswer: "3 y 4",
     explanation:
-      "Polinomio: lambda^2 - 7lambda + 12 = 0. Al factorizar (lambda-3)(lambda-4)=0, las raices son 3 y 4."
+      "Polinomio: λ^2 - 7λ + 12 = 0. Al factorizar (λ-3)(λ-4)=0, las raices son 3 y 4."
   },
   {
     id: "N2-006",
@@ -247,7 +247,7 @@ const QUESTION_BANK = [
     options: ["2 (multiplicidad 2)", "1 y 3", "4 y 0", "-2 (multiplicidad 2)"],
     correctIndex: 0,
     correctAnswer: "2 (multiplicidad 2)",
-    explanation: "Polinomio: lambda^2 - 4lambda + 4 = 0, lo que es (lambda-2)^2 = 0, raiz doble en 2."
+    explanation: "Polinomio: λ^2 - 4λ + 4 = 0, lo que es (λ-2)^2 = 0, raiz doble en 2."
   },
   {
     id: "N2-007",
@@ -269,7 +269,7 @@ const QUESTION_BANK = [
     options: ["-3 (multiplicidad 2)", "-2 y -4", "-1 y 1", "3 (multiplicidad 2)"],
     correctIndex: 0,
     correctAnswer: "-3 (multiplicidad 2)",
-    explanation: "Polinomio: lambda^2 + 6lambda + 9 = 0, equivalente a (lambda+3)^2 = 0. Raiz doble en -3."
+    explanation: "Polinomio: λ^2 + 6λ + 9 = 0, equivalente a (λ+3)^2 = 0. Raiz doble en -3."
   },
   {
     id: "N2-009",
@@ -280,7 +280,7 @@ const QUESTION_BANK = [
     options: ["2 y -2", "0 y 4", "1 y 4", "-2 y 0"],
     correctIndex: 0,
     correctAnswer: "2 y -2",
-    explanation: "Polinomio: lambda^2 - 4 = 0. Las raices de esta ecuacion son 2 y -2."
+    explanation: "Polinomio: λ^2 - 4 = 0. Las raices de esta ecuacion son 2 y -2."
   },
   {
     id: "N2-010",
@@ -325,7 +325,7 @@ const QUESTION_BANK = [
     options: ["0, 1 y -1", "1 (mult 3)", "0 (mult 3)", "0, 1 y 2"],
     correctIndex: 2,
     correctAnswer: "0 (mult 3)",
-    explanation: "Polinomio -lambda^3 = 0, el unico valor propio es 0 con multiplicidad algebraica 3."
+    explanation: "Polinomio -λ^3 = 0, el unico valor propio es 0 con multiplicidad algebraica 3."
   },
   {
     id: "N2-014",
@@ -356,7 +356,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[2,0],[0,3]]. Para lambda = 2, cual es un vector propio asociado?",
+    question: "Sea A = [[2,0],[0,3]]. Para λ = 2, cual es un vector propio asociado?",
     options: ["[1, 0]^T", "[0, 1]^T", "[1, 1]^T", "[2, 3]^T"],
     correctIndex: 0,
     correctAnswer: "[1, 0]^T",
@@ -368,7 +368,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[1,2],[0,4]]. Para lambda = 1, cual es un vector propio asociado?",
+    question: "Sea A = [[1,2],[0,4]]. Para λ = 1, cual es un vector propio asociado?",
     options: ["[2, 1]^T", "[1, 0]^T", "[0, 1]^T", "[1, 2]^T"],
     correctIndex: 1,
     correctAnswer: "[1, 0]^T",
@@ -380,7 +380,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[1,2],[0,4]]. Para lambda = 4, cual es un vector propio asociado?",
+    question: "Sea A = [[1,2],[0,4]]. Para λ = 4, cual es un vector propio asociado?",
     options: ["[1, 0]^T", "[2, 3]^T", "[1, 1]^T", "[0, 1]^T"],
     correctIndex: 1,
     correctAnswer: "[2, 3]^T",
@@ -392,7 +392,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[0,1],[1,0]]. Para lambda = 1, cual es un vector propio asociado?",
+    question: "Sea A = [[0,1],[1,0]]. Para λ = 1, cual es un vector propio asociado?",
     options: ["[1, -1]^T", "[1, 1]^T", "[1, 0]^T", "[0, 1]^T"],
     correctIndex: 1,
     correctAnswer: "[1, 1]^T",
@@ -404,7 +404,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[0,1],[1,0]]. Para lambda = -1, cual es un vector propio asociado?",
+    question: "Sea A = [[0,1],[1,0]]. Para λ = -1, cual es un vector propio asociado?",
     options: ["[1, 1]^T", "[0, 1]^T", "[1, -1]^T", "[-1, -1]^T"],
     correctIndex: 2,
     correctAnswer: "[1, -1]^T",
@@ -416,7 +416,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[3,1],[1,3]]. Para lambda = 4, cual es un vector propio asociado?",
+    question: "Sea A = [[3,1],[1,3]]. Para λ = 4, cual es un vector propio asociado?",
     options: ["[1, 1]^T", "[1, -1]^T", "[3, 1]^T", "[1, 3]^T"],
     correctIndex: 0,
     correctAnswer: "[1, 1]^T",
@@ -428,7 +428,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[3,1],[1,3]]. Para lambda = 2, cual es un vector propio asociado?",
+    question: "Sea A = [[3,1],[1,3]]. Para λ = 2, cual es un vector propio asociado?",
     options: ["[1, 1]^T", "[-1, -1]^T", "[1, -1]^T", "[3, 2]^T"],
     correctIndex: 2,
     correctAnswer: "[1, -1]^T",
@@ -440,7 +440,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[1,-1],[-1,1]]. Para lambda = 0, cual es un vector propio asociado?",
+    question: "Sea A = [[1,-1],[-1,1]]. Para λ = 0, cual es un vector propio asociado?",
     options: ["[1, -1]^T", "[1, 1]^T", "[0, 1]^T", "[1, 0]^T"],
     correctIndex: 1,
     correctAnswer: "[1, 1]^T",
@@ -452,7 +452,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "facil",
-    question: "Sea A = [[1,-1],[-1,1]]. Para lambda = 2, cual es un vector propio asociado?",
+    question: "Sea A = [[1,-1],[-1,1]]. Para λ = 2, cual es un vector propio asociado?",
     options: ["[1, 1]^T", "[1, -1]^T", "[-1, -1]^T", "[0, 2]^T"],
     correctIndex: 1,
     correctAnswer: "[1, -1]^T",
@@ -464,7 +464,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "medio",
-    question: "Sea A = [[1,0,0],[0,2,0],[0,0,3]]. Para lambda = 1, cual es un vector propio?",
+    question: "Sea A = [[1,0,0],[0,2,0],[0,0,3]]. Para λ = 1, cual es un vector propio?",
     options: ["[0, 1, 0]^T", "[0, 0, 1]^T", "[1, 0, 0]^T", "[1, 1, 1]^T"],
     correctIndex: 2,
     correctAnswer: "[1, 0, 0]^T",
@@ -476,7 +476,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "medio",
-    question: "Sea A = [[2,1,0],[0,2,0],[0,0,1]]. Para lambda = 1, cual es un vector propio?",
+    question: "Sea A = [[2,1,0],[0,2,0],[0,0,1]]. Para λ = 1, cual es un vector propio?",
     options: ["[1, 0, 0]^T", "[0, 1, 0]^T", "[0, 0, 1]^T", "[1, 1, 0]^T"],
     correctIndex: 2,
     correctAnswer: "[0, 0, 1]^T",
@@ -488,7 +488,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "medio",
-    question: "Sea A = [[1,1,1],[0,2,1],[0,0,3]]. Para lambda = 1, cual es un vector propio?",
+    question: "Sea A = [[1,1,1],[0,2,1],[0,0,3]]. Para λ = 1, cual es un vector propio?",
     options: ["[1, 0, 0]^T", "[1, 1, 0]^T", "[0, 1, 1]^T", "[1, 1, 1]^T"],
     correctIndex: 0,
     correctAnswer: "[1, 0, 0]^T",
@@ -500,7 +500,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "medio",
-    question: "Sea A = [[1,1,1],[1,1,1],[1,1,1]]. Para lambda = 3, cual es un vector propio?",
+    question: "Sea A = [[1,1,1],[1,1,1],[1,1,1]]. Para λ = 3, cual es un vector propio?",
     options: ["[1, -1, 0]^T", "[1, 1, 1]^T", "[0, 1, -1]^T", "[1, 0, 0]^T"],
     correctIndex: 1,
     correctAnswer: "[1, 1, 1]^T",
@@ -512,7 +512,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "dificil",
-    question: "Sea A = [[2,0,0],[1,2,0],[0,1,2]]. Para lambda = 2, cual es un vector propio?",
+    question: "Sea A = [[2,0,0],[1,2,0],[0,1,2]]. Para λ = 2, cual es un vector propio?",
     options: ["[1, 0, 0]^T", "[0, 1, 0]^T", "[0, 0, 1]^T", "[1, 1, 1]^T"],
     correctIndex: 2,
     correctAnswer: "[0, 0, 1]^T",
@@ -524,7 +524,7 @@ const QUESTION_BANK = [
     level: 3,
     topic: "vectores_propios",
     difficulty: "dificil",
-    question: "Sea A = [[1,1,1],[0,1,1],[0,0,2]]. Para lambda = 2, cual es un vector propio asociado?",
+    question: "Sea A = [[1,1,1],[0,1,1],[0,0,2]]. Para λ = 2, cual es un vector propio asociado?",
     options: ["[1, 0, 0]^T", "[0, 1, 1]^T", "[2, 1, 1]^T", "[1, 1, 1]^T"],
     correctIndex: 2,
     correctAnswer: "[2, 1, 1]^T",
@@ -540,11 +540,11 @@ const QUESTION_BANK = [
     options: [
       "Si, porque es triangular.",
       "Si, porque su determinante es 1.",
-      "No, porque la multiplicidad geometrica de lambda=1 es menor a la algebraica.",
+      "No, porque la multiplicidad geometrica de λ=1 es menor a la algebraica.",
       "No, porque no tiene inversa."
     ],
     correctIndex: 2,
-    correctAnswer: "No, porque la multiplicidad geometrica de lambda=1 es menor a la algebraica.",
+    correctAnswer: "No, porque la multiplicidad geometrica de λ=1 es menor a la algebraica.",
     explanation:
       "El unico valor propio es 1 (mult. alg. 2), pero solo genera un vector propio independiente [1,0]^T (mult. geom. 1)."
   },
@@ -586,11 +586,11 @@ const QUESTION_BANK = [
     options: [
       "Si, porque tiene valores reales.",
       "Si, porque tiene inversa.",
-      "No, porque su espacio propio para lambda=1 tiene dimension 1.",
+      "No, porque su espacio propio para λ=1 tiene dimension 1.",
       "No, porque no es cuadrada."
     ],
     correctIndex: 2,
-    correctAnswer: "No, porque su espacio propio para lambda=1 tiene dimension 1.",
+    correctAnswer: "No, porque su espacio propio para λ=1 tiene dimension 1.",
     explanation:
       "Como la multiplicidad algebraica de 1 es 2, pero su multiplicidad geometrica es 1, no es diagonalizable."
   },
@@ -631,7 +631,7 @@ const QUESTION_BANK = [
     correctIndex: 1,
     correctAnswer: "[[3,0],[0,-1]]",
     explanation:
-      "Los valores propios son 3 y -1 (raices de lambda^2 - 2lambda - 3 = 0), que forman la diagonal."
+      "Los valores propios son 3 y -1 (raices de λ^2 - 2λ - 3 = 0), que forman la diagonal."
   },
   {
     id: "N4-008",
@@ -670,12 +670,12 @@ const QUESTION_BANK = [
     question: "Es la matriz A = [[1,1,0],[0,1,1],[0,0,1]] diagonalizable?",
     options: [
       "Si, tiene inversa.",
-      "No, la multiplicidad geometrica de lambda=1 es 1, menor que 3.",
+      "No, la multiplicidad geometrica de λ=1 es 1, menor que 3.",
       "Si, es triangular superior.",
       "No, porque no es cuadrada."
     ],
     correctIndex: 1,
-    correctAnswer: "No, la multiplicidad geometrica de lambda=1 es 1, menor que 3.",
+    correctAnswer: "No, la multiplicidad geometrica de λ=1 es 1, menor que 3.",
     explanation:
       "El valor propio es 1 (mult. alg. 3), pero el sistema (A-I)v = 0 solo arroja 1 vector propio independiente."
   },
@@ -750,12 +750,12 @@ const QUESTION_BANK = [
       "Una matriz 3x3 tiene valores propios 1 (doble) y 3 (simple). Condicion para ser diagonalizable?",
     options: [
       "Que el determinante sea 3.",
-      "Que la multiplicidad geometrica de lambda=1 sea 2.",
+      "Que la multiplicidad geometrica de λ=1 sea 2.",
       "Que la matriz sea triangular.",
-      "Que el vector propio de lambda=3 sea el vector nulo."
+      "Que el vector propio de λ=3 sea el vector nulo."
     ],
     correctIndex: 1,
-    correctAnswer: "Que la multiplicidad geometrica de lambda=1 sea 2.",
+    correctAnswer: "Que la multiplicidad geometrica de λ=1 sea 2.",
     explanation:
       "Para diagonalizar, la dimension del espacio propio para cada valor propio multiple debe igualar su multiplicidad algebraica."
   }
