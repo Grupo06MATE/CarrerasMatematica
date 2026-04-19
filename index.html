@@ -69,7 +69,7 @@
             </article>
             <article>
               <strong>Retos y progreso</strong>
-              <span>Misiones, jefes al final de nivel, escudos y vidas extra.</span>
+              <span>Misiones, jefes al final de nivel, escudos y vidas extra manuales.</span>
             </article>
             <article>
               <strong>Control total</strong>
@@ -119,6 +119,7 @@
             <canvas id="gameCanvas" width="960" height="540"></canvas>
             <div class="hud-rail left-rail">
               <div class="rail-chip"><span>Vidas</span><strong id="livesValue">3</strong></div>
+              <div class="rail-chip"><span>Escudos</span><strong id="shieldValue">0</strong></div>
               <div class="rail-chip"><span>Tiempo</span><strong id="timerValue">75</strong></div>
             </div>
 
@@ -129,10 +130,10 @@
             </div>
 
             <div id="countdownOverlay" class="countdown-overlay hidden"></div>
-            <button id="extraLifeOfferBtn" class="extra-life-offer hidden" type="button">
-              <span class="extra-life-offer-label">8 monedas listas</span>
-              <strong id="extraLifeOfferText">Toca aqui para +1 vida</strong>
-            </button>
+            <div id="extraLifeOfferBtn" class="extra-life-offer hidden" aria-live="polite">
+              <span class="extra-life-offer-label">Bonus</span>
+              <strong id="extraLifeOfferText">+1 vida</strong>
+            </div>
             <div class="canvas-overlay top-fade"></div>
             <div class="canvas-overlay bottom-fade"></div>
           </div>
@@ -192,8 +193,8 @@
             </div>
             <ul class="mission-list">
               <li id="bossInfo">Jefe: pendiente</li>
-              <li id="rewardInfo">Vida extra cada 30 monedas</li>
-              <li id="shieldInfo">Escudo al cumplir misión</li>
+              <li id="rewardInfo">Cada 6 monedas ganas +1 vida, maximo 2 por bioma</li>
+              <li id="shieldInfo">Escudos disponibles: maximo 2 por bioma</li>
             </ul>
           </section>
         </aside>
@@ -264,6 +265,7 @@
     <ol id="ranking-list"></ol>
 
     <div class="result-actions">
+      <button id="playAgainBtn" class="primary-btn" type="button">Jugar otra vez</button>
       <button id="saveScoreBtn" class="secondary-btn" type="button">Guardar ranking</button>
       <button id="viewLiveRankingBtn" class="secondary-btn" type="button">Ver ranking en directo</button>
     </div>

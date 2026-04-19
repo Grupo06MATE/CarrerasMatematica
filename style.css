@@ -40,6 +40,7 @@ body {
     linear-gradient(180deg, var(--bg-2), var(--bg-1));
   color: var(--text);
   font-family: "Segoe UI", Tahoma, sans-serif;
+  overscroll-behavior-y: contain;
 }
 
 .intro-screen {
@@ -264,6 +265,7 @@ body {
 
 .screen {
   min-height: calc(100vh - 36px);
+  min-height: calc(100dvh - 36px);
 }
 
 .hidden {
@@ -697,6 +699,7 @@ button:focus {
   background: #000;
   box-shadow: 0 30px 100px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(48, 229, 255, 0.15);
   border: 1px solid rgba(48, 229, 255, 0.15);
+  touch-action: manipulation;
 }
 
 #gameCanvas {
@@ -721,6 +724,7 @@ button:focus {
   border: 1px solid rgba(110, 255, 127, 0.38);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34), 0 0 18px rgba(110, 255, 127, 0.14);
   backdrop-filter: blur(10px);
+  pointer-events: none;
 }
 
 .extra-life-offer-label {
@@ -1083,6 +1087,8 @@ button:focus {
   backdrop-filter: blur(10px);
   z-index: 6;
   animation: modalBackdropFade 0.3s ease;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 @keyframes modalBackdropFade {
@@ -1098,6 +1104,8 @@ button:focus {
 
 .modal-card {
   width: min(100%, 540px);
+  max-height: min(92vh, 900px);
+  overflow-y: auto;
   padding: 26px;
   border-radius: 28px;
   background: linear-gradient(135deg, rgba(12, 23, 42, 0.98), rgba(8, 15, 28, 0.98));
@@ -1277,6 +1285,10 @@ input:focus {
     align-items: stretch;
   }
 
+  .side-column {
+    gap: 12px;
+  }
+
   .result-grid,
   .answers-grid {
     grid-template-columns: 1fr;
@@ -1286,6 +1298,7 @@ input:focus {
 @media (max-width: 640px) {
   .app {
     width: min(100%, calc(100% - 12px));
+    margin: 6px auto 12px;
   }
 
   .hero-card,
@@ -1303,8 +1316,9 @@ input:focus {
   }
 
   .status-banner {
-    flex-direction: row;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 
   .canvas-shell {
@@ -1370,6 +1384,42 @@ input:focus {
     gap: 10px;
   }
 
+  .arrow-pad,
+  .turbo-actions {
+    width: 100%;
+  }
+
+  .arrow-pad {
+    justify-content: center;
+  }
+
+  .turbo-actions {
+    min-width: 0;
+  }
+
+  .turbo-control,
+  .stop-turbo-control,
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+  }
+
+  .modal {
+    place-items: end center;
+    padding: 10px 10px max(10px, env(safe-area-inset-bottom));
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: min(88dvh, 920px);
+    padding: 18px;
+    border-radius: 22px 22px 18px 18px;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
   .intro-card {
     padding: 26px 18px 20px;
     border-radius: 22px;
@@ -1381,5 +1431,90 @@ input:focus {
 
   .intro-progress-track {
     height: 12px;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-card {
+    padding: 18px 14px;
+  }
+
+  .topbar-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .meta-pill {
+    min-width: 0;
+  }
+
+  .rail-chip {
+    min-width: 58px;
+  }
+
+  .extra-life-offer {
+    left: 8px;
+    right: 8px;
+    min-width: 0;
+  }
+
+  .arrow-btn {
+    width: 78px;
+    height: 72px;
+  }
+
+  .arrow-pad {
+    gap: 14px;
+    padding: 10px;
+  }
+
+  .turbo-control {
+    min-height: 64px;
+  }
+
+  .stop-turbo-control {
+    min-height: 52px;
+  }
+
+  .controls-panel {
+    position: sticky;
+    bottom: 6px;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(6, 15, 32, 0.98), rgba(8, 20, 40, 0.98));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 370px) {
+  .app {
+    width: min(100%, calc(100% - 8px));
+  }
+
+  .hero-card,
+  .topbar,
+  .panel,
+  .status-banner,
+  .controls-panel {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .rail-chip {
+    min-width: 52px;
+    padding: 5px 6px;
+  }
+
+  .rail-chip strong {
+    font-size: 0.84rem;
+  }
+
+  .hud-bars-vertical {
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .meter-vertical {
+    height: 74px;
   }
 }

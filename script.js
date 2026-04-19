@@ -55,6 +55,7 @@ const scoreValue = document.getElementById("scoreValue");
 const comboValue = document.getElementById("comboValue");
 const coinsValue = document.getElementById("coinsValue");
 const livesValue = document.getElementById("livesValue");
+const shieldValue = document.getElementById("shieldValue");
 const timerValue = document.getElementById("timerValue");
 const progressValue = document.getElementById("progressValue");
 const levelProgressText = document.getElementById("levelProgressText");
@@ -92,6 +93,7 @@ const finalScore = document.getElementById("finalScore");
 const finalCoins = document.getElementById("finalCoins");
 const finalLevel = document.getElementById("finalLevel");
 const playerName = document.getElementById("playerName");
+const playAgainBtn = document.getElementById("playAgainBtn");
 const saveScoreBtn = document.getElementById("saveScoreBtn");
 const viewLiveRankingBtn = document.getElementById("viewLiveRankingBtn");
 const startThemeAudio = document.getElementById("startThemeAudio");
@@ -124,6 +126,13 @@ const PERF = {
   maxParticles: lowPerformanceDevice ? 70 : 140,
   roadSegments: lowPerformanceDevice ? 26 : 36,
   enableExpensiveEffects: !lowPerformanceDevice
+};
+const MOBILE_TUNING = {
+  hazardIntervalBonus: isLikelyMobileDevice ? 0.18 : 0,
+  pickupIntervalBonus: isLikelyMobileDevice ? 0.08 : 0,
+  maxActiveHazards: isLikelyMobileDevice ? 2 : 3,
+  maxActivePickups: isLikelyMobileDevice ? 3 : 2,
+  collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.9 : SAFE_COLLISION_SCALE
 };
 
 const audioController = createAudioController({
@@ -270,6 +279,11 @@ function resizeCanvas() {
 
 function showModal(modal) {
   modal.classList.remove("hidden");
+  modal.scrollTop = 0;
+  const card = modal.querySelector(".modal-card");
+  if (card) {
+    card.scrollTop = 0;
+  }
 }
 
 function hideModal(modal) {
@@ -340,6 +354,7 @@ function resetState() {
   state.comboMultiplier = 1;
   state.coins = 0;
   state.lives = 3;
+  state.shields = 0;
   state.timer = levels[0].timeLimit;
   state.playerX = lanes[1];
   state.playerLane = 1;
@@ -356,12 +371,13 @@ function resetState() {
   state.turbo = 0;
   state.turboActiveUntil = 0;
   state.nextExtraLifeOfferCoins = state.extraLifeOfferStep;
-  state.extraLifeOffers = 0;
   state.extraLifeEarnedThisBiome = 0;
+  state.extraLifeAlertUntil = 0;
   state.missionCompleted = false;
   state.missionProgress = 0;
   state.streakCorrect = 0;
   state.turbosUsedLevel = 0;
+  state.shieldsCollectedLevel = 0;
   state.levelBossStarted = false;
   state.bossReady = false;
   state.bossRound = 0;
@@ -448,6 +464,7 @@ function updateHud(force = false) {
   comboValue.textContent = `x${state.comboMultiplier.toFixed(1)}`;
   coinsValue.textContent = state.coins;
   livesValue.textContent = state.lives;
+  shieldValue.textContent = state.shields;
   timerValue.textContent = state.timer;
   progressValue.textContent = `${Math.round(levelProgress)}%`;
   levelProgressText.textContent = `${Math.floor(state.levelDistance)} / ${level.trackLength}`;
@@ -459,15 +476,11 @@ function updateHud(force = false) {
   bossInfo.textContent = state.bossReady
     ? `Jefe listo: ${level.bossRounds} preguntas para cerrar ${level.map}`
     : `Jefe al llegar al 100% del recorrido`;
-  rewardInfo.textContent = `Cada ${state.extraLifeOfferStep} monedas activas una vida manual, maximo ${state.extraLifeMaxPerBiome} por bioma`;
-  shieldInfo.textContent = state.extraLifeOffers > 0
-    ? `Tienes ${state.extraLifeOffers} vida${state.extraLifeOffers > 1 ? "s" : ""} extra listas para reclamar`
-    : `Vidas extra del bioma: ${state.extraLifeEarnedThisBiome}/${state.extraLifeMaxPerBiome}`;
+  rewardInfo.textContent = `Cada ${state.extraLifeOfferStep} monedas ganas +1 vida, maximo ${state.extraLifeMaxPerBiome} por bioma`;
+  shieldInfo.textContent = `Escudos del bioma: ${state.shieldsCollectedLevel}/${state.shieldMaxPerBiome} | Activos: ${state.shields}`;
   if (extraLifeOfferBtn && extraLifeOfferText) {
-    extraLifeOfferBtn.classList.toggle("hidden", state.extraLifeOffers <= 0 || state.screen !== "game");
-    extraLifeOfferText.textContent = state.extraLifeOffers > 1
-      ? `Toca aqui para reclamar ${state.extraLifeOffers} vidas`
-      : "Toca aqui para +1 vida";
+    extraLifeOfferBtn.classList.toggle("hidden", now >= state.extraLifeAlertUntil || state.screen !== "game");
+    extraLifeOfferText.textContent = "+1 vida";
   }
 }
 
@@ -586,6 +599,12 @@ function updateMission() {
     if (turboTarget > 0 && state.turbosUsedLevel >= turboTarget) {
       completeMission();
     }
+  } else if (mission.includes("escudos")) {
+    const shieldTarget = Number(mission.match(/(\d+)/)?.[1] || 0);
+    state.missionProgress = clamp(state.shieldsCollectedLevel, 0, shieldTarget);
+    if (shieldTarget > 0 && state.shieldsCollectedLevel >= shieldTarget) {
+      completeMission();
+    }
   }
 }
 
@@ -685,7 +704,10 @@ function spawnHazard() {
 }
 
 function spawnPickup() {
-  const pickupChoices = ["coin", "coin", "coin", "coin", "coin", "turbo"];
+  const pickupChoices = ["coin", "coin", "coin", "coin", "turbo"];
+  if (state.shieldsCollectedLevel < state.shieldMaxPerBiome) {
+    pickupChoices.push("shield");
+  }
   const lanePool = getPickupLanePool();
   createObject(randomItem(pickupChoices), randomItem(lanePool));
   return true;
@@ -900,8 +922,10 @@ function prepareNextLevel() {
   state.timer = currentLevel().timeLimit;
   state.levelDistance = 0;
   state.nextExtraLifeOfferCoins = state.coins + state.extraLifeOfferStep;
-  state.extraLifeOffers = 0;
   state.extraLifeEarnedThisBiome = 0;
+  state.extraLifeAlertUntil = 0;
+  state.shields = 0;
+  state.shieldsCollectedLevel = 0;
   state.missionCompleted = false;
   state.missionProgress = 0;
   state.streakCorrect = 0;
@@ -986,6 +1010,13 @@ function stopTurbo() {
 }
 
 function loseLife(reason) {
+  if (state.shields > 0) {
+    state.shields -= 1;
+    statusLabel.textContent = `${reason}, pero el escudo te salvo`;
+    spawnBurst(canvas.clientWidth / 2, canvas.clientHeight * 0.78, "#77ff99", 20);
+    updateHud();
+    return;
+  }
   state.lives -= 1;
   state.combo = 0;
   state.comboMultiplier = 1;
@@ -1002,11 +1033,11 @@ function registerExtraLifeOffer() {
   if (state.extraLifeEarnedThisBiome >= state.extraLifeMaxPerBiome) {
     return false;
   }
-  state.extraLifeOffers += 1;
   state.extraLifeEarnedThisBiome += 1;
-  if (state.extraLifeOffers === 1) {
-    statusLabel.textContent = `Recolectaste ${state.nextExtraLifeOfferCoins} monedas: toca el aviso para tu vida extra`;
-  }
+  state.lives += 1;
+  state.extraLifeAlertUntil = performance.now() + 1600;
+  statusLabel.textContent = `Recolectaste ${state.nextExtraLifeOfferCoins} monedas: +1 vida`;
+  spawnBurst(canvas.clientWidth * 0.74, canvas.clientHeight * 0.18, "#ffd166", 18);
   return true;
 }
 
@@ -1023,23 +1054,19 @@ function gainCoins(amount) {
   updateHud();
 }
 
-function claimExtraLifeOffer() {
-  if (state.extraLifeOffers <= 0) {
-    return;
-  }
-  state.extraLifeOffers -= 1;
-  state.lives += 1;
-  statusLabel.textContent = "Vida extra reclamada";
-  spawnBurst(canvas.clientWidth * 0.74, canvas.clientHeight * 0.18, "#ffd166", 18);
-  updateHud();
-}
-
 function handlePickup(object) {
   if (object.kind === "coin") {
-    gainCoins(5);
+    gainCoins(1);
     state.score += Math.round(4 * state.comboMultiplier);
     playCoinSound();
     spawnBurst(projectX(object.x, object.z), projectY(object.z), "#ffd166", 12);
+  } else if (object.kind === "shield") {
+    if (state.shieldsCollectedLevel < state.shieldMaxPerBiome) {
+      state.shields += 1;
+      state.shieldsCollectedLevel += 1;
+      statusLabel.textContent = "Escudo recogido";
+      spawnBurst(projectX(object.x, object.z), projectY(object.z), "#77ff99", 14);
+    }
   } else if (object.kind === "turbo") {
     state.turbo = clamp(state.turbo + 28, 0, 100);
     statusLabel.textContent = "Carga turbo recogida";
@@ -1081,7 +1108,7 @@ function projectY(z) {
 }
 
 function getCarY() {
-  return canvas.clientHeight * 0.78;
+  return canvas.clientHeight * 0.82;
 }
 
 function spawnBurst(x, y, color, count) {
@@ -1166,16 +1193,21 @@ function updateWorld(dt, now) {
 
   const turboBoost = now < state.turboActiveUntil ? 1.85 : 1;
   const activeHazards = getObjectCountByKind("hazard");
-  const activePickups = getObjectCountByKind("coin") + getObjectCountByKind("turbo");
+  const activePickups = getObjectCountByKind("coin") + getObjectCountByKind("shield") + getObjectCountByKind("turbo");
   const hazardInterval = clamp(
-    HAZARD_SPAWN_INTERVAL - Math.min(0.14, state.levelIndex * 0.03) - (turboBoost > 1 ? 0.05 : 0),
-    0.28,
-    0.5
+    HAZARD_SPAWN_INTERVAL +
+      MOBILE_TUNING.hazardIntervalBonus -
+      Math.min(0.14, state.levelIndex * 0.03) -
+      (turboBoost > 1 ? (isLikelyMobileDevice ? 0.02 : 0.05) : 0),
+    isLikelyMobileDevice ? 0.42 : 0.28,
+    isLikelyMobileDevice ? 0.72 : 0.5
   );
   const pickupInterval = clamp(
-    PICKUP_SPAWN_INTERVAL - Math.min(0.12, state.levelIndex * 0.025),
-    0.56,
-    0.82
+    PICKUP_SPAWN_INTERVAL +
+      MOBILE_TUNING.pickupIntervalBonus -
+      Math.min(0.12, state.levelIndex * 0.025),
+    isLikelyMobileDevice ? 0.62 : 0.56,
+    isLikelyMobileDevice ? 0.96 : 0.82
   );
   state.curvePhase = 0;
   state.playerX = lanes[state.playerLane];
@@ -1195,7 +1227,7 @@ function updateWorld(dt, now) {
   }
 
   if (state.hazardSpawnCooldown <= 0) {
-    if (activeHazards < 3 && spawnHazard()) {
+    if (activeHazards < MOBILE_TUNING.maxActiveHazards && spawnHazard()) {
       state.hazardSpawnCooldown = hazardInterval;
     } else {
       state.hazardSpawnCooldown = Math.max(0.16, hazardInterval * 0.45);
@@ -1203,7 +1235,7 @@ function updateWorld(dt, now) {
   }
 
   if (state.pickupSpawnCooldown <= 0) {
-    if (activePickups < 2 && spawnPickup()) {
+    if (activePickups < MOBILE_TUNING.maxActivePickups && spawnPickup()) {
       state.pickupSpawnCooldown = pickupInterval;
     } else {
       state.pickupSpawnCooldown = Math.max(0.24, pickupInterval * 0.5);
@@ -1232,8 +1264,8 @@ function updateWorld(dt, now) {
       const carHeight = 84;
       const dx = Math.abs(objectScreenX - carScreenX);
       const dy = Math.abs((y - objectHeight * 0.3) - (carY - carHeight * 0.2));
-      const hitX = dx < (objectWidth + carWidth) * 0.5 * SAFE_COLLISION_SCALE;
-      const hitY = dy < (objectHeight + carHeight) * 0.46 * SAFE_COLLISION_SCALE;
+      const hitX = dx < (objectWidth + carWidth) * 0.5 * MOBILE_TUNING.collisionScale;
+      const hitY = dy < (objectHeight + carHeight) * 0.46 * MOBILE_TUNING.collisionScale;
       const hit = hitX && hitY;
       
       if (hit) {
@@ -1635,6 +1667,19 @@ function drawObjects() {
       ctx.font = `900 ${Math.max(14, width * 0.56)}px Segoe UI`;
       ctx.textAlign = "center";
       ctx.fillText("$", x, y - height * 0.62);
+    } else if (object.type === "shield") {
+      ctx.fillStyle = object.color;
+      ctx.beginPath();
+      ctx.moveTo(x, y - height * 1.4);
+      ctx.lineTo(x + width * 0.7, y - height * 0.7);
+      ctx.lineTo(x + width * 0.45, y);
+      ctx.lineTo(x - width * 0.45, y);
+      ctx.lineTo(x - width * 0.7, y - height * 0.7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.65)";
+      ctx.lineWidth = Math.max(1.5, width * 0.05);
+      ctx.stroke();
     } else if (object.type === "turbo") {
       ctx.fillStyle = object.color;
       ctx.beginPath();
@@ -1886,8 +1931,8 @@ function drawParticles() {
 function drawUiHints() {
   ctx.fillStyle = "rgba(255,255,255,0.82)";
   ctx.font = "600 16px Segoe UI";
-  if (state.extraLifeOffers > 0) {
-    ctx.fillText(`Vida lista: ${state.extraLifeOffers}`, 22, canvas.clientHeight - 24);
+  if (performance.now() < state.extraLifeAlertUntil) {
+    ctx.fillText("+1 vida", 22, canvas.clientHeight - 24);
   }
   if (currentLevel().weather === "Neblina") {
     ctx.fillStyle = "rgba(255,255,255,0.12)";
@@ -1991,10 +2036,11 @@ stopTurboControl.addEventListener("click", () => {
   stopTurbo();
 });
 
-if (extraLifeOfferBtn) {
-  extraLifeOfferBtn.addEventListener("click", () => {
+if (playAgainBtn) {
+  playAgainBtn.addEventListener("click", () => {
     unlockAudioFromGesture();
-    claimExtraLifeOffer();
+    hideModal(gameOverModal);
+    startGameFlow();
   });
 }
 
