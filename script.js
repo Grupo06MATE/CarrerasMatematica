@@ -131,7 +131,7 @@ const PERF = {
 const MOBILE_TUNING = {
   hazardIntervalBonus: isLikelyMobileDevice ? 0.26 : 0,
   pickupIntervalBonus: isLikelyMobileDevice ? 0.14 : 0,
-  maxActiveHazards: isLikelyMobileDevice ? 3 : 6,
+  maxActiveHazards: isLikelyMobileDevice ? 2 : 4,
   maxActivePickups: isLikelyMobileDevice ? 2 : 2,
   collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.86 : SAFE_COLLISION_SCALE
 };
@@ -736,8 +736,23 @@ function spawnHazardWave() {
   const pattern = HAZARD_WAVE_PATTERNS[state.hazardWavePatternIndex % patternCount];
   state.hazardWavePatternIndex = (state.hazardWavePatternIndex + 1) % patternCount;
 
-  const laneQueue = pattern.filter((laneIndex, position, lanesInPattern) => {
-    return lanesInPattern.indexOf(laneIndex) === position && !hasHazardTooCloseInLane(laneIndex);
+  const blockedLanes = getBlockedLanesInWindow(0.04, 0.5);
+  const projectedBlockedLanes = new Set(blockedLanes);
+  const laneQueue = [];
+
+  pattern.forEach((laneIndex, position, lanesInPattern) => {
+    const isUnique = lanesInPattern.indexOf(laneIndex) === position;
+    if (!isUnique || hasHazardTooCloseInLane(laneIndex)) {
+      return;
+    }
+
+    const keepsFreeLane = projectedBlockedLanes.has(laneIndex) || projectedBlockedLanes.size < lanes.length - 1;
+    if (!keepsFreeLane) {
+      return;
+    }
+
+    laneQueue.push(laneIndex);
+    projectedBlockedLanes.add(laneIndex);
   });
 
   if (!laneQueue.length) {
