@@ -4,7 +4,6 @@ import {
   lanes,
   FIXED_SPAWN_INTERVAL,
   HAZARD_SPAWN_INTERVAL,
-  HAZARD_WAVE_PATTERNS,
   PICKUP_SPAWN_INTERVAL,
   PLAYER_DRAW_Z,
   BASE_WORLD_SPEED,
@@ -727,47 +726,19 @@ function spawnHazard() {
 }
 
 function spawnHazardWave() {
-  const patternCount = HAZARD_WAVE_PATTERNS.length;
-  if (!patternCount) {
+  const lanePool = getAvailableHazardLanes();
+  if (!lanePool.length) {
     return 0;
   }
 
+  const laneOrder = [1, 0, 2];
+  const preferredLane = laneOrder[state.hazardWavePatternIndex % laneOrder.length];
+  state.hazardWavePatternIndex = (state.hazardWavePatternIndex + 1) % laneOrder.length;
+
+  const laneIndex = lanePool.includes(preferredLane) ? preferredLane : lanePool[0];
   const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
-  const pattern = HAZARD_WAVE_PATTERNS[state.hazardWavePatternIndex % patternCount];
-  state.hazardWavePatternIndex = (state.hazardWavePatternIndex + 1) % patternCount;
-
-  const blockedLanes = getBlockedLanesInWindow(0.04, 0.5);
-  const projectedBlockedLanes = new Set(blockedLanes);
-  const laneQueue = [];
-
-  pattern.forEach((laneIndex, position, lanesInPattern) => {
-    const isUnique = lanesInPattern.indexOf(laneIndex) === position;
-    if (!isUnique || hasHazardTooCloseInLane(laneIndex)) {
-      return;
-    }
-
-    const keepsFreeLane = projectedBlockedLanes.has(laneIndex) || projectedBlockedLanes.size < lanes.length - 1;
-    if (!keepsFreeLane) {
-      return;
-    }
-
-    laneQueue.push(laneIndex);
-    projectedBlockedLanes.add(laneIndex);
-  });
-
-  if (!laneQueue.length) {
-    return 0;
-  }
-
-  let spawned = 0;
-
-  while (laneQueue.length) {
-    const laneIndex = laneQueue.shift();
-    createObject(randomItem(hazardChoices), laneIndex);
-    spawned += 1;
-  }
-
-  return spawned;
+  createObject(randomItem(hazardChoices), laneIndex);
+  return 1;
 }
 
 function spawnPickup() {
