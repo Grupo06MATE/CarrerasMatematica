@@ -2165,6 +2165,14 @@ document.addEventListener("keydown", (event) => {
 
 window.addEventListener("resize", resizeCanvas);
 
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      // No bloquear el juego si el registro falla.
+    });
+  });
+}
+
 renderRanking();
 renderWorldMap();
 updateSelectedPlayerLabel();
