@@ -1,13 +1,11 @@
 export const STORAGE_KEY = "matecarreras-3d-ranking";
 export const lanes = [-0.66, 0, 0.66];
-export const FIXED_SPAWN_INTERVAL = 0.34;
-export const HAZARD_SPAWN_INTERVAL = 0.38;
-export const PICKUP_SPAWN_INTERVAL = 0.72;
+export const FIXED_SPAWN_INTERVAL = 0.46;
 export const PLAYER_DRAW_Z = 0.82;
 export const BASE_WORLD_SPEED = 0.58;
 export const LEVEL_TRAVEL_RATE = 1.42;
 export const OBJECT_DESPAWN_Z = 0.98;
-export const MIN_HAZARD_SPAWN_GAP_Z = 0.34;
+export const MIN_HAZARD_SPAWN_GAP_Z = 0.22;
 export const SAFE_COLLISION_SCALE = 0.84;
 
 export const levels = [
@@ -116,7 +114,8 @@ export const obstacleTypes = {
   truck: { kind: "hazard", color: "#5cc8ff", width: 0.15, height: 0.18 },
   coin: { kind: "coin", color: "#ffd166", width: 0.082, height: 0.13 },
   shield: { kind: "shield", color: "#77ff99", width: 0.07, height: 0.1 },
-  turbo: { kind: "turbo", color: "#ff8c42", width: 0.07, height: 0.1 }
+  turbo: { kind: "turbo", color: "#ff8c42", width: 0.07, height: 0.1 },
+  wildcard: { kind: "quiz", color: "#45d6ff", width: 0.09, height: 0.14 }
 };
 
 export const obstacleSpriteFiles = {
@@ -168,22 +167,15 @@ export const state = {
   particles: [],
   weatherParticles: [],
   spawnCooldown: FIXED_SPAWN_INTERVAL,
-  hazardSpawnCooldown: HAZARD_SPAWN_INTERVAL,
-  pickupSpawnCooldown: PICKUP_SPAWN_INTERVAL,
   lastFrame: 0,
   turbo: 0,
   turboActiveUntil: 0,
-  extraLifeOfferStep: 6,
-  nextExtraLifeOfferCoins: 6,
-  extraLifeEarnedThisBiome: 0,
-  extraLifeMaxPerBiome: 2,
-  extraLifeAlertUntil: 0,
+  extraLifeMilestone: 30,
   missionCompleted: false,
   missionProgress: 0,
   streakCorrect: 0,
   turbosUsedLevel: 0,
   shieldsCollectedLevel: 0,
-  shieldMaxPerBiome: 2,
   levelBossStarted: false,
   bossReady: false,
   bossRound: 0,
@@ -191,7 +183,6 @@ export const state = {
   playerDisplayName: "",
   rankingSaved: false,
   pendingCollisionReason: null,
-  hazardWavePatternIndex: 0,
   usedQuestionIdsByLevel: {},
   usedBossQuestionIdsByLevel: {}
 };

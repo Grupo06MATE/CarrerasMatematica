@@ -3,8 +3,6 @@ import {
   STORAGE_KEY,
   lanes,
   FIXED_SPAWN_INTERVAL,
-  HAZARD_SPAWN_INTERVAL,
-  PICKUP_SPAWN_INTERVAL,
   PLAYER_DRAW_Z,
   BASE_WORLD_SPEED,
   LEVEL_TRAVEL_RATE,
@@ -45,8 +43,6 @@ const rightControl = document.getElementById("rightControl");
 const turboControl = document.getElementById("turboControl");
 const stopTurboControl = document.getElementById("stopTurboControl");
 const countdownOverlay = document.getElementById("countdownOverlay");
-const extraLifeOfferBtn = document.getElementById("extraLifeOfferBtn");
-const extraLifeOfferText = document.getElementById("extraLifeOfferText");
 
 const levelValue = document.getElementById("levelValue");
 const mapValue = document.getElementById("mapValue");
@@ -93,7 +89,6 @@ const finalScore = document.getElementById("finalScore");
 const finalCoins = document.getElementById("finalCoins");
 const finalLevel = document.getElementById("finalLevel");
 const playerName = document.getElementById("playerName");
-const playAgainBtn = document.getElementById("playAgainBtn");
 const saveScoreBtn = document.getElementById("saveScoreBtn");
 const viewLiveRankingBtn = document.getElementById("viewLiveRankingBtn");
 const startThemeAudio = document.getElementById("startThemeAudio");
@@ -118,24 +113,15 @@ const deviceMemoryGb = Number(navigator.deviceMemory || 4);
 const deviceCores = Number(navigator.hardwareConcurrency || 4);
 const lowPerformanceDevice = isLikelyMobileDevice && (deviceMemoryGb <= 4 || deviceCores <= 6);
 const PERF = {
-  maxDpr: isLikelyMobileDevice ? 1 : 2,
-  frameIntervalMs: 1000 / 60,
-  hudIntervalMs: isLikelyMobileDevice ? 180 : (lowPerformanceDevice ? 120 : 70),
-  weatherSpawnChance: isLikelyMobileDevice ? 0.03 : (lowPerformanceDevice ? 0.09 : 0.18),
-  maxWeatherParticles: isLikelyMobileDevice ? 20 : (lowPerformanceDevice ? 80 : 150),
-  maxParticles: isLikelyMobileDevice ? 24 : (lowPerformanceDevice ? 70 : 140),
-  roadSegments: isLikelyMobileDevice ? 14 : (lowPerformanceDevice ? 26 : 36),
-  enableExpensiveEffects: !isLikelyMobileDevice && !lowPerformanceDevice
+  maxDpr: lowPerformanceDevice ? 1.5 : 2,
+  frameIntervalMs: lowPerformanceDevice ? 1000 / 50 : 1000 / 60,
+  hudIntervalMs: lowPerformanceDevice ? 120 : 70,
+  weatherSpawnChance: lowPerformanceDevice ? 0.09 : 0.18,
+  maxWeatherParticles: lowPerformanceDevice ? 80 : 150,
+  maxParticles: lowPerformanceDevice ? 70 : 140,
+  roadSegments: lowPerformanceDevice ? 26 : 36,
+  enableExpensiveEffects: !lowPerformanceDevice
 };
-const MOBILE_TUNING = {
-  hazardIntervalBonus: isLikelyMobileDevice ? 0.26 : 0,
-  pickupIntervalBonus: isLikelyMobileDevice ? 0.14 : 0,
-  maxActiveHazards: isLikelyMobileDevice ? 2 : 3,
-  maxActivePickups: isLikelyMobileDevice ? 2 : 2,
-  collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.86 : SAFE_COLLISION_SCALE
-};
-let mobileSlowFrameCount = 0;
-let mobilePerfDegraded = false;
 
 const audioController = createAudioController({
   state,
@@ -279,31 +265,8 @@ function resizeCanvas() {
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
-function degradeMobilePerformanceMode() {
-  if (!isLikelyMobileDevice || mobilePerfDegraded) {
-    return;
-  }
-  mobilePerfDegraded = true;
-  PERF.maxDpr = 1;
-  PERF.frameIntervalMs = 1000 / 30;
-  PERF.hudIntervalMs = 220;
-  PERF.weatherSpawnChance = 0.015;
-  PERF.maxWeatherParticles = 10;
-  PERF.maxParticles = 14;
-  PERF.roadSegments = 10;
-  PERF.enableExpensiveEffects = false;
-  state.particles = state.particles.slice(-10);
-  state.weatherParticles = state.weatherParticles.slice(-8);
-  resizeCanvas();
-}
-
 function showModal(modal) {
   modal.classList.remove("hidden");
-  modal.scrollTop = 0;
-  const card = modal.querySelector(".modal-card");
-  if (card) {
-    card.scrollTop = 0;
-  }
 }
 
 function hideModal(modal) {
@@ -385,14 +348,10 @@ function resetState() {
   state.particles = [];
   state.weatherParticles = [];
   state.spawnCooldown = FIXED_SPAWN_INTERVAL;
-  state.hazardSpawnCooldown = HAZARD_SPAWN_INTERVAL;
-  state.pickupSpawnCooldown = PICKUP_SPAWN_INTERVAL;
   state.lastFrame = 0;
   state.turbo = 0;
   state.turboActiveUntil = 0;
-  state.nextExtraLifeOfferCoins = state.extraLifeOfferStep;
-  state.extraLifeEarnedThisBiome = 0;
-  state.extraLifeAlertUntil = 0;
+  state.extraLifeMilestone = 30;
   state.missionCompleted = false;
   state.missionProgress = 0;
   state.streakCorrect = 0;
@@ -404,7 +363,6 @@ function resetState() {
   state.levelDistance = 0;
   state.rankingSaved = false;
   state.pendingCollisionReason = null;
-  state.hazardWavePatternIndex = 0;
   state.usedQuestionIdsByLevel = {};
   state.usedBossQuestionIdsByLevel = {};
   stopTrack(levelOneThemeAudio, true);
@@ -497,12 +455,8 @@ function updateHud(force = false) {
   bossInfo.textContent = state.bossReady
     ? `Jefe listo: ${level.bossRounds} preguntas para cerrar ${level.map}`
     : `Jefe al llegar al 100% del recorrido`;
-  rewardInfo.textContent = `Cada ${state.extraLifeOfferStep} monedas ganas +1 vida, maximo ${state.extraLifeMaxPerBiome} por bioma`;
-  shieldInfo.textContent = `Escudos del bioma: ${state.shieldsCollectedLevel}/${state.shieldMaxPerBiome} | Activos: ${state.shields}`;
-  if (extraLifeOfferBtn && extraLifeOfferText) {
-    extraLifeOfferBtn.classList.toggle("hidden", now >= state.extraLifeAlertUntil || state.screen !== "game");
-    extraLifeOfferText.textContent = "+1 vida";
-  }
+  rewardInfo.textContent = `Vida extra en ${state.extraLifeMilestone} monedas`;
+  shieldInfo.textContent = state.missionCompleted ? "Escudo de mision conseguido" : "Escudo al cumplir mision";
 }
 
 function renderWorldMap() {
@@ -602,28 +556,24 @@ function goToLiveRanking() {
 
 function updateMission() {
   const mission = currentLevel().mission;
-  if (mission.includes("bien")) {
-    const streakTarget = Number(mission.match(/(\d+)/)?.[1] || 0);
-    state.missionProgress = clamp(state.streakCorrect, 0, streakTarget);
-    if (streakTarget > 0 && state.streakCorrect >= streakTarget) {
+  if (mission.includes("5 bien")) {
+    state.missionProgress = clamp(state.streakCorrect, 0, 5);
+    if (state.streakCorrect >= 5) {
       completeMission();
     }
-  } else if (mission.includes("monedas")) {
-    const coinTarget = Number(mission.match(/(\d+)/)?.[1] || 0);
-    state.missionProgress = clamp(state.coins - state.levelScoreStart, 0, coinTarget);
-    if (coinTarget > 0 && state.missionProgress >= coinTarget) {
+  } else if (mission.includes("18 monedas")) {
+    state.missionProgress = clamp(state.coins - state.levelScoreStart, 0, 18);
+    if (state.missionProgress >= 18) {
       completeMission();
     }
-  } else if (mission.includes("turbos")) {
-    const turboTarget = Number(mission.match(/(\d+)/)?.[1] || 0);
-    state.missionProgress = clamp(state.turbosUsedLevel, 0, turboTarget);
-    if (turboTarget > 0 && state.turbosUsedLevel >= turboTarget) {
+  } else if (mission.includes("2 turbos")) {
+    state.missionProgress = clamp(state.turbosUsedLevel, 0, 2);
+    if (state.turbosUsedLevel >= 2) {
       completeMission();
     }
-  } else if (mission.includes("escudos")) {
-    const shieldTarget = Number(mission.match(/(\d+)/)?.[1] || 0);
-    state.missionProgress = clamp(state.shieldsCollectedLevel, 0, shieldTarget);
-    if (shieldTarget > 0 && state.shieldsCollectedLevel >= shieldTarget) {
+  } else if (mission.includes("2 escudos")) {
+    state.missionProgress = clamp(state.shieldsCollectedLevel, 0, 2);
+    if (state.shieldsCollectedLevel >= 2) {
       completeMission();
     }
   }
@@ -634,9 +584,9 @@ function completeMission() {
     return;
   }
   state.missionCompleted = true;
-  state.score += 18;
+  state.shields += 1;
   state.turbo = clamp(state.turbo + 35, 0, 100);
-  statusLabel.textContent = "Mision cumplida: turbo y puntos extra";
+  statusLabel.textContent = "Mision cumplida: ganaste un escudo";
   spawnBurst(canvas.clientWidth * 0.5, canvas.clientHeight - 40, "#77ff99", 24);
   updateHud();
 }
@@ -660,7 +610,7 @@ function isBlockingType(type) {
 function getBlockedLanesInWindow(minZ = 0.03, maxZ = 0.44) {
   const blocked = new Set();
   state.objects.forEach((object) => {
-    if (object.z >= minZ && object.z <= maxZ && object.kind === "hazard") {
+    if (object.z >= minZ && object.z <= maxZ && (object.kind === "hazard" || object.kind === "quiz")) {
       blocked.add(object.laneIndex);
     }
   });
@@ -671,16 +621,31 @@ function hasHazardTooCloseInLane(laneIndex, minGapZ = MIN_HAZARD_SPAWN_GAP_Z) {
   return state.objects.some(
     (object) =>
       object.laneIndex === laneIndex &&
-      object.kind === "hazard" &&
+      (object.kind === "hazard" || object.kind === "quiz") &&
       Math.abs(object.z - 0.05) < minGapZ
   );
 }
 
-function createObject(selected, laneIndex) {
-  const config = obstacleTypes[selected];
-  if (!config) {
-    return;
+function spawnObject(type = null) {
+  const choices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck", "wildcard", "coin"];
+  let selected = type || randomItem(choices);
+
+  const blockedLanes = getBlockedLanesInWindow();
+  if (isBlockingType(selected) && blockedLanes.size >= lanes.length - 1) {
+    // Mantener siempre una salida: si ya hay 2 carriles comprometidos, spawnear moneda.
+    selected = "coin";
   }
+
+  const config = obstacleTypes[selected];
+  let lanePool = [0, 1, 2];
+  if (isBlockingType(selected)) {
+    lanePool = lanePool.filter((lane) => !blockedLanes.has(lane));
+    lanePool = lanePool.filter((lane) => !hasHazardTooCloseInLane(lane));
+    if (!lanePool.length) {
+      lanePool = [0, 1, 2];
+    }
+  }
+  const laneIndex = randomItem(lanePool);
 
   state.objects.push({
     type: selected,
@@ -695,82 +660,6 @@ function createObject(selected, laneIndex) {
     z: 0.05,
     wobble: Math.random() * Math.PI * 2
   });
-}
-
-function getObjectCountByKind(kind) {
-  return state.objects.filter((object) => object.kind === kind).length;
-}
-
-function getPickupLanePool() {
-  const blockedLanes = getBlockedLanesInWindow(0.06, 0.62);
-  const preferred = [0, 1, 2].filter((lane) => !blockedLanes.has(lane));
-  return preferred.length ? preferred : [0, 1, 2];
-}
-
-function getAvailableHazardLanes() {
-  const occupiedDangerLanes = getBlockedLanesInWindow(0.03, 0.68);
-  if (occupiedDangerLanes.size >= 2) {
-    return [];
-  }
-
-  const blockedLanes = getBlockedLanesInWindow();
-  return [0, 1, 2]
-    .filter((lane) => !blockedLanes.has(lane))
-    .filter((lane) => !hasHazardTooCloseInLane(lane));
-}
-
-function spawnHazard() {
-  const lanePool = getAvailableHazardLanes();
-  if (!lanePool.length) {
-    return false;
-  }
-
-  const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
-  createObject(randomItem(hazardChoices), randomItem(lanePool));
-  return true;
-}
-
-function spawnHazardWave() {
-  const lanePool = getAvailableHazardLanes();
-  if (!lanePool.length) {
-    return 0;
-  }
-
-  const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
-  createObject(randomItem(hazardChoices), randomItem(lanePool));
-  return 1;
-}
-
-function spawnPickup() {
-  const pickupChoices = ["coin", "coin", "coin", "coin", "turbo"];
-  if (state.shieldsCollectedLevel < state.shieldMaxPerBiome) {
-    pickupChoices.push("shield");
-  }
-  const lanePool = getPickupLanePool();
-  createObject(randomItem(pickupChoices), randomItem(lanePool));
-  return true;
-}
-
-function spawnObject(type = null) {
-  if (type && obstacleTypes[type]) {
-    const lanePool = isBlockingType(type)
-      ? [0, 1, 2].filter((lane) => !getBlockedLanesInWindow().has(lane) && !hasHazardTooCloseInLane(lane))
-      : getPickupLanePool();
-    const fallbackLanes = lanePool.length ? lanePool : [0, 1, 2];
-    createObject(type, randomItem(fallbackLanes));
-    return;
-  }
-
-  if (Math.random() < 0.65) {
-    if (!spawnHazardWave()) {
-      spawnPickup();
-    }
-    return;
-  }
-
-  if (!spawnPickup()) {
-    spawnHazardWave();
-  }
 }
 
 function generateFallbackMathQuestion(kind = "normal") {
@@ -873,8 +762,6 @@ function clearRoadAfterAnswer() {
   // Vacia objetos activos para que el jugador retome con la pista limpia.
   state.objects = [];
   state.spawnCooldown = FIXED_SPAWN_INTERVAL;
-  state.hazardSpawnCooldown = HAZARD_SPAWN_INTERVAL * 0.9;
-  state.pickupSpawnCooldown = PICKUP_SPAWN_INTERVAL * 0.75;
 }
 
 function answerQuiz(correct) {
@@ -882,21 +769,31 @@ function answerQuiz(correct) {
   state.pausedForQuiz = false;
   state.running = true;
   syncExternalMusic();
+  const isWildcardQuestion = state.pendingCollisionReason === "Comodin: responde para seguir";
   if (correct) {
     state.streakCorrect += 1;
     state.combo += 1;
     state.comboMultiplier = 1 + Math.min(2.5, state.combo * 0.2);
-    const gained = state.pendingCollisionReason ? 0 : Math.round(6 * state.comboMultiplier);
+    const gained = isWildcardQuestion
+      ? Math.round(12 * state.comboMultiplier)
+      : state.pendingCollisionReason
+        ? 0
+        : Math.round(6 * state.comboMultiplier);
     state.score += gained;
-    state.turbo = clamp(state.turbo + 22, 0, 100);
-    statusLabel.textContent = state.pendingCollisionReason ? "Te salvaste del choque" : `Correcta: +${gained} puntos`;
+    state.turbo = clamp(state.turbo + (isWildcardQuestion ? 30 : 22), 0, 100);
+    if (isWildcardQuestion) {
+      gainCoins(3);
+      statusLabel.textContent = `Comodin acertado: +${gained} puntos, +3 monedas y turbo extra`;
+    } else {
+      statusLabel.textContent = state.pendingCollisionReason ? "Te salvaste del choque" : `Correcta: +${gained} puntos`;
+    }
     playCorrectSound();
     spawnBurst(canvas.clientWidth / 2, canvas.clientHeight * 0.7, "#45d6ff", 18);
   } else {
     state.streakCorrect = 0;
     state.combo = 0;
     state.comboMultiplier = 1;
-    loseLife(state.pendingCollisionReason || "Fallaste la pregunta");
+    loseLife(isWildcardQuestion ? "Fallaste el comodin" : state.pendingCollisionReason || "Fallaste la pregunta");
   }
   state.pendingCollisionReason = null;
   clearRoadAfterAnswer();
@@ -959,15 +856,11 @@ function prepareNextLevel() {
   state.levelScoreStart = state.coins;
   state.timer = currentLevel().timeLimit;
   state.levelDistance = 0;
-  state.nextExtraLifeOfferCoins = state.coins + state.extraLifeOfferStep;
-  state.extraLifeEarnedThisBiome = 0;
-  state.extraLifeAlertUntil = 0;
-  state.shields = 0;
-  state.shieldsCollectedLevel = 0;
   state.missionCompleted = false;
   state.missionProgress = 0;
   state.streakCorrect = 0;
   state.turbosUsedLevel = 0;
+  state.shieldsCollectedLevel = 0;
   state.combo = 0;
   state.comboMultiplier = 1;
   renderWorldMap();
@@ -1010,6 +903,7 @@ function finishBossBattle() {
   state.levelBossStarted = false;
   state.bossReady = false;
   state.score += 20;
+  state.shields += 1;
   state.turbo = clamp(state.turbo + 30, 0, 100);
   statusLabel.textContent = `Jefe derrotado en ${currentLevel().name}`;
   spawnBurst(canvas.clientWidth / 2, canvas.clientHeight * 0.6, "#ff9f1c", 30);
@@ -1050,43 +944,29 @@ function stopTurbo() {
 function loseLife(reason) {
   if (state.shields > 0) {
     state.shields -= 1;
-    statusLabel.textContent = `${reason}, pero el escudo te salvo`;
-    spawnBurst(canvas.clientWidth / 2, canvas.clientHeight * 0.78, "#77ff99", 20);
-    updateHud();
-    return;
+    statusLabel.textContent = `${reason}, pero el escudo te protegió`;
+    spawnBurst(canvas.clientWidth / 2, canvas.clientHeight * 0.8, "#77ff99", 20);
+  } else {
+    state.lives -= 1;
+    state.combo = 0;
+    state.comboMultiplier = 1;
+    statusLabel.textContent = reason;
+    playCrashSound();
+    spawnExplosion(canvas.clientWidth / 2, canvas.clientHeight * 0.78);
   }
-  state.lives -= 1;
-  state.combo = 0;
-  state.comboMultiplier = 1;
-  statusLabel.textContent = reason;
-  playCrashSound();
-  spawnExplosion(canvas.clientWidth / 2, canvas.clientHeight * 0.78);
   if (state.lives <= 0) {
     endGame(false, "Perdiste todas las vidas.");
   }
   updateHud();
 }
 
-function registerExtraLifeOffer() {
-  if (state.extraLifeEarnedThisBiome >= state.extraLifeMaxPerBiome) {
-    return false;
-  }
-  state.extraLifeEarnedThisBiome += 1;
-  state.lives += 1;
-  state.extraLifeAlertUntil = performance.now() + 1600;
-  statusLabel.textContent = `Recolectaste ${state.nextExtraLifeOfferCoins} monedas: +1 vida`;
-  spawnBurst(canvas.clientWidth * 0.74, canvas.clientHeight * 0.18, "#ffd166", 18);
-  return true;
-}
-
 function gainCoins(amount) {
   state.coins += amount;
-  while (
-    state.coins >= state.nextExtraLifeOfferCoins &&
-    state.extraLifeEarnedThisBiome < state.extraLifeMaxPerBiome
-  ) {
-    registerExtraLifeOffer();
-    state.nextExtraLifeOfferCoins += state.extraLifeOfferStep;
+  if (state.coins >= state.extraLifeMilestone) {
+    state.lives += 1;
+    state.extraLifeMilestone += 30;
+    statusLabel.textContent = "Vida extra por juntar monedas";
+    spawnBurst(canvas.clientWidth * 0.7, 80, "#ffd166", 18);
   }
   updateMission();
   updateHud();
@@ -1094,17 +974,15 @@ function gainCoins(amount) {
 
 function handlePickup(object) {
   if (object.kind === "coin") {
-    gainCoins(1);
+    gainCoins(5);
     state.score += Math.round(4 * state.comboMultiplier);
     playCoinSound();
     spawnBurst(projectX(object.x, object.z), projectY(object.z), "#ffd166", 12);
   } else if (object.kind === "shield") {
-    if (state.shieldsCollectedLevel < state.shieldMaxPerBiome) {
-      state.shields += 1;
-      state.shieldsCollectedLevel += 1;
-      statusLabel.textContent = "Escudo recogido";
-      spawnBurst(projectX(object.x, object.z), projectY(object.z), "#77ff99", 14);
-    }
+    state.shields += 1;
+    state.shieldsCollectedLevel += 1;
+    statusLabel.textContent = "Escudo recogido";
+    spawnBurst(projectX(object.x, object.z), projectY(object.z), "#77ff99", 14);
   } else if (object.kind === "turbo") {
     state.turbo = clamp(state.turbo + 28, 0, 100);
     statusLabel.textContent = "Carga turbo recogida";
@@ -1146,7 +1024,7 @@ function projectY(z) {
 }
 
 function getCarY() {
-  return canvas.clientHeight * 0.82;
+  return canvas.clientHeight * 0.78;
 }
 
 function spawnBurst(x, y, color, count) {
@@ -1230,28 +1108,9 @@ function updateWorld(dt, now) {
   }
 
   const turboBoost = now < state.turboActiveUntil ? 1.85 : 1;
-  const activeHazards = getObjectCountByKind("hazard");
-  const activePickups = getObjectCountByKind("coin") + getObjectCountByKind("shield") + getObjectCountByKind("turbo");
-  const hazardInterval = clamp(
-    HAZARD_SPAWN_INTERVAL +
-      MOBILE_TUNING.hazardIntervalBonus -
-      Math.min(0.14, state.levelIndex * 0.03) -
-      (turboBoost > 1 ? (isLikelyMobileDevice ? 0.02 : 0.05) : 0),
-    isLikelyMobileDevice ? 0.42 : 0.28,
-    isLikelyMobileDevice ? 0.72 : 0.5
-  );
-  const pickupInterval = clamp(
-    PICKUP_SPAWN_INTERVAL +
-      MOBILE_TUNING.pickupIntervalBonus -
-      Math.min(0.12, state.levelIndex * 0.025),
-    isLikelyMobileDevice ? 0.62 : 0.56,
-    isLikelyMobileDevice ? 0.96 : 0.82
-  );
   state.curvePhase = 0;
   state.playerX = lanes[state.playerLane];
   state.spawnCooldown -= dt;
-  state.hazardSpawnCooldown -= dt;
-  state.pickupSpawnCooldown -= dt;
   if (!state.levelBossStarted) {
     state.levelDistance = clamp(
       state.levelDistance + dt * LEVEL_TRAVEL_RATE * turboBoost,
@@ -1261,23 +1120,8 @@ function updateWorld(dt, now) {
   }
 
   if (state.spawnCooldown <= 0) {
+    spawnObject();
     state.spawnCooldown = FIXED_SPAWN_INTERVAL;
-  }
-
-  if (state.hazardSpawnCooldown <= 0) {
-    if (activeHazards < MOBILE_TUNING.maxActiveHazards && spawnHazardWave()) {
-      state.hazardSpawnCooldown = hazardInterval;
-    } else {
-      state.hazardSpawnCooldown = Math.max(0.16, hazardInterval * 0.45);
-    }
-  }
-
-  if (state.pickupSpawnCooldown <= 0) {
-    if (activePickups < MOBILE_TUNING.maxActivePickups && spawnPickup()) {
-      state.pickupSpawnCooldown = pickupInterval;
-    } else {
-      state.pickupSpawnCooldown = Math.max(0.24, pickupInterval * 0.5);
-    }
   }
 
   state.objects.forEach((object) => {
@@ -1302,13 +1146,15 @@ function updateWorld(dt, now) {
       const carHeight = 84;
       const dx = Math.abs(objectScreenX - carScreenX);
       const dy = Math.abs((y - objectHeight * 0.3) - (carY - carHeight * 0.2));
-      const hitX = dx < (objectWidth + carWidth) * 0.5 * MOBILE_TUNING.collisionScale;
-      const hitY = dy < (objectHeight + carHeight) * 0.46 * MOBILE_TUNING.collisionScale;
+      const hitX = dx < (objectWidth + carWidth) * 0.5 * SAFE_COLLISION_SCALE;
+      const hitY = dy < (objectHeight + carHeight) * 0.46 * SAFE_COLLISION_SCALE;
       const hit = hitX && hitY;
       
       if (hit) {
         if (object.kind === "hazard") {
           handleHazard(object);
+        } else if (object.kind === "quiz") {
+          triggerCollisionQuestion("Comodin: responde para seguir");
         } else {
           handlePickup(object);
         }
@@ -1715,9 +1561,6 @@ function drawObjects() {
       ctx.lineTo(x - width * 0.7, y - height * 0.7);
       ctx.closePath();
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.65)";
-      ctx.lineWidth = Math.max(1.5, width * 0.05);
-      ctx.stroke();
     } else if (object.type === "turbo") {
       ctx.fillStyle = object.color;
       ctx.beginPath();
@@ -1729,6 +1572,36 @@ function drawObjects() {
       ctx.lineTo(x + width * 0.1, y - height * 0.7);
       ctx.closePath();
       ctx.fill();
+    } else if (object.type === "wildcard") {
+      const badgeY = y - height * 0.72;
+      ctx.save();
+      ctx.translate(x, badgeY);
+      ctx.rotate(Math.PI / 4);
+      const badgeGradient = ctx.createLinearGradient(-width, -height, width, height);
+      badgeGradient.addColorStop(0, "#7ef2ff");
+      badgeGradient.addColorStop(0.55, "#45d6ff");
+      badgeGradient.addColorStop(1, "#0b6fd1");
+      ctx.fillStyle = badgeGradient;
+      ctx.fillRect(-width * 0.78, -width * 0.78, width * 1.56, width * 1.56);
+      ctx.strokeStyle = "#dff9ff";
+      ctx.lineWidth = Math.max(2, width * 0.06);
+      ctx.strokeRect(-width * 0.78, -width * 0.78, width * 1.56, width * 1.56);
+      ctx.restore();
+      ctx.strokeStyle = "rgba(69, 214, 255, 0.28)";
+      ctx.lineWidth = Math.max(2, width * 0.08);
+      ctx.beginPath();
+      ctx.arc(x, badgeY, width * 1.04, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "#08273d";
+      ctx.font = `900 ${Math.max(16, width * 0.62)}px Segoe UI`;
+      ctx.textAlign = "center";
+      ctx.fillText("?", x, badgeY + width * 0.14);
+      ctx.strokeStyle = "rgba(255,255,255,0.72)";
+      ctx.lineWidth = Math.max(1, width * 0.035);
+      ctx.beginPath();
+      ctx.moveTo(x - width * 0.18, badgeY - width * 0.55);
+      ctx.lineTo(x + width * 0.32, badgeY - width * 0.08);
+      ctx.stroke();
     } else if (object.type === "truck") {
       ctx.fillStyle = object.color;
       ctx.fillRect(x - width * 0.6, y - height * 1.2, width * 1.2, height * 1.2);
@@ -1969,9 +1842,7 @@ function drawParticles() {
 function drawUiHints() {
   ctx.fillStyle = "rgba(255,255,255,0.82)";
   ctx.font = "600 16px Segoe UI";
-  if (performance.now() < state.extraLifeAlertUntil) {
-    ctx.fillText("+1 vida", 22, canvas.clientHeight - 24);
-  }
+  ctx.fillText(`Escudos: ${state.shields}`, 22, canvas.clientHeight - 24);
   if (currentLevel().weather === "Neblina") {
     ctx.fillStyle = "rgba(255,255,255,0.12)";
     ctx.fillRect(0, canvas.clientHeight * 0.2, canvas.clientWidth, canvas.clientHeight * 0.45);
@@ -2036,18 +1907,6 @@ function animate(timestamp) {
     requestAnimationFrame(animate);
     return;
   }
-  if (isLikelyMobileDevice && lastPresentedFrameAt) {
-    const presentedDeltaMs = timestamp - lastPresentedFrameAt;
-    if (presentedDeltaMs > 34) {
-      mobileSlowFrameCount += 1;
-    } else if (mobileSlowFrameCount > 0) {
-      mobileSlowFrameCount -= 1;
-    }
-    if (mobileSlowFrameCount >= 8) {
-      degradeMobilePerformanceMode();
-      mobileSlowFrameCount = 0;
-    }
-  }
   lastPresentedFrameAt = timestamp;
 
   if (!state.lastFrame) {
@@ -2085,14 +1944,6 @@ stopTurboControl.addEventListener("click", () => {
   unlockAudioFromGesture();
   stopTurbo();
 });
-
-if (playAgainBtn) {
-  playAgainBtn.addEventListener("click", () => {
-    unlockAudioFromGesture();
-    hideModal(gameOverModal);
-    startGameFlow();
-  });
-}
 
 startGameBtn.addEventListener("click", () => {
   unlockAudioFromGesture();
@@ -2156,14 +2007,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("resize", resizeCanvas);
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {
-      // No bloquear el juego si el registro falla.
-    });
-  });
-}
 
 renderRanking();
 renderWorldMap();
