@@ -4,6 +4,8 @@ import {
   lanes,
   FIXED_SPAWN_INTERVAL,
   HAZARD_SPAWN_INTERVAL,
+  HAZARD_WAVE_MAX,
+  HAZARD_WAVE_MIN,
   PICKUP_SPAWN_INTERVAL,
   PLAYER_DRAW_Z,
   BASE_WORLD_SPEED,
@@ -130,7 +132,7 @@ const PERF = {
 const MOBILE_TUNING = {
   hazardIntervalBonus: isLikelyMobileDevice ? 0.26 : 0,
   pickupIntervalBonus: isLikelyMobileDevice ? 0.14 : 0,
-  maxActiveHazards: isLikelyMobileDevice ? 2 : 4,
+  maxActiveHazards: isLikelyMobileDevice ? 3 : 6,
   maxActivePickups: isLikelyMobileDevice ? 2 : 2,
   collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.86 : SAFE_COLLISION_SCALE
 };
@@ -706,14 +708,15 @@ function getPickupLanePool() {
   return preferred.length ? preferred : [0, 1, 2];
 }
 
-function spawnHazard() {
+function getAvailableHazardLanes() {
   const blockedLanes = getBlockedLanesInWindow();
-  if (blockedLanes.size >= lanes.length - 1) {
-    return false;
-  }
+  return [0, 1, 2]
+    .filter((lane) => !blockedLanes.has(lane))
+    .filter((lane) => !hasHazardTooCloseInLane(lane));
+}
 
-  let lanePool = [0, 1, 2].filter((lane) => !blockedLanes.has(lane));
-  lanePool = lanePool.filter((lane) => !hasHazardTooCloseInLane(lane));
+function spawnHazard() {
+  const lanePool = getAvailableHazardLanes();
   if (!lanePool.length) {
     return false;
   }
@@ -721,6 +724,29 @@ function spawnHazard() {
   const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
   createObject(randomItem(hazardChoices), randomItem(lanePool));
   return true;
+}
+
+function spawnHazardWave() {
+  const availableLanes = getAvailableHazardLanes();
+  if (!availableLanes.length) {
+    return 0;
+  }
+
+  const waveSize = clamp(
+    HAZARD_WAVE_MIN + Math.floor(Math.random() * (HAZARD_WAVE_MAX - HAZARD_WAVE_MIN + 1)),
+    1,
+    availableLanes.length
+  );
+  const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
+  let spawned = 0;
+
+  while (spawned < waveSize && availableLanes.length) {
+    const laneIndex = availableLanes.splice(Math.floor(Math.random() * availableLanes.length), 1)[0];
+    createObject(randomItem(hazardChoices), laneIndex);
+    spawned += 1;
+  }
+
+  return spawned;
 }
 
 function spawnPickup() {
@@ -744,14 +770,14 @@ function spawnObject(type = null) {
   }
 
   if (Math.random() < 0.65) {
-    if (!spawnHazard()) {
+    if (!spawnHazardWave()) {
       spawnPickup();
     }
     return;
   }
 
   if (!spawnPickup()) {
-    spawnHazard();
+    spawnHazardWave();
   }
 }
 
@@ -1247,7 +1273,7 @@ function updateWorld(dt, now) {
   }
 
   if (state.hazardSpawnCooldown <= 0) {
-    if (activeHazards < MOBILE_TUNING.maxActiveHazards && spawnHazard()) {
+    if (activeHazards < MOBILE_TUNING.maxActiveHazards && spawnHazardWave()) {
       state.hazardSpawnCooldown = hazardInterval;
     } else {
       state.hazardSpawnCooldown = Math.max(0.16, hazardInterval * 0.45);
