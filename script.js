@@ -130,7 +130,7 @@ const PERF = {
 const MOBILE_TUNING = {
   hazardIntervalBonus: isLikelyMobileDevice ? 0.26 : 0,
   pickupIntervalBonus: isLikelyMobileDevice ? 0.14 : 0,
-  maxActiveHazards: isLikelyMobileDevice ? 1 : 3,
+  maxActiveHazards: isLikelyMobileDevice ? 2 : 4,
   maxActivePickups: isLikelyMobileDevice ? 2 : 2,
   collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.86 : SAFE_COLLISION_SCALE
 };

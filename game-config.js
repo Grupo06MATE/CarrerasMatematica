@@ -1,13 +1,13 @@
 export const STORAGE_KEY = "matecarreras-3d-ranking";
 export const lanes = [-0.66, 0, 0.66];
-export const FIXED_SPAWN_INTERVAL = 0.46;
-export const HAZARD_SPAWN_INTERVAL = 0.5;
-export const PICKUP_SPAWN_INTERVAL = 0.82;
+export const FIXED_SPAWN_INTERVAL = 0.38;
+export const HAZARD_SPAWN_INTERVAL = 0.4;
+export const PICKUP_SPAWN_INTERVAL = 0.72;
 export const PLAYER_DRAW_Z = 0.82;
 export const BASE_WORLD_SPEED = 0.58;
 export const LEVEL_TRAVEL_RATE = 1.42;
 export const OBJECT_DESPAWN_Z = 0.98;
-export const MIN_HAZARD_SPAWN_GAP_Z = 0.22;
+export const MIN_HAZARD_SPAWN_GAP_Z = 0.26;
 export const SAFE_COLLISION_SCALE = 0.84;
 
 export const levels = [
