@@ -130,7 +130,7 @@ const PERF = {
 const MOBILE_TUNING = {
   hazardIntervalBonus: isLikelyMobileDevice ? 0.26 : 0,
   pickupIntervalBonus: isLikelyMobileDevice ? 0.14 : 0,
-  maxActiveHazards: isLikelyMobileDevice ? 2 : 4,
+  maxActiveHazards: isLikelyMobileDevice ? 2 : 3,
   maxActivePickups: isLikelyMobileDevice ? 2 : 2,
   collisionScale: isLikelyMobileDevice ? SAFE_COLLISION_SCALE * 0.86 : SAFE_COLLISION_SCALE
 };
@@ -708,6 +708,11 @@ function getPickupLanePool() {
 }
 
 function getAvailableHazardLanes() {
+  const occupiedDangerLanes = getBlockedLanesInWindow(0.03, 0.68);
+  if (occupiedDangerLanes.size >= 2) {
+    return [];
+  }
+
   const blockedLanes = getBlockedLanesInWindow();
   return [0, 1, 2]
     .filter((lane) => !blockedLanes.has(lane))
@@ -731,13 +736,8 @@ function spawnHazardWave() {
     return 0;
   }
 
-  const laneOrder = [1, 0, 2];
-  const preferredLane = laneOrder[state.hazardWavePatternIndex % laneOrder.length];
-  state.hazardWavePatternIndex = (state.hazardWavePatternIndex + 1) % laneOrder.length;
-
-  const laneIndex = lanePool.includes(preferredLane) ? preferredLane : lanePool[0];
   const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
-  createObject(randomItem(hazardChoices), laneIndex);
+  createObject(randomItem(hazardChoices), randomItem(lanePool));
   return 1;
 }
 
