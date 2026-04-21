@@ -5,6 +5,11 @@ export const HAZARD_SPAWN_INTERVAL = 0.4;
 export const PICKUP_SPAWN_INTERVAL = 0.72;
 export const HAZARD_WAVE_MIN = 2;
 export const HAZARD_WAVE_MAX = 3;
+export const HAZARD_WAVE_PATTERNS = [
+  [1, 2],
+  [0, 1],
+  [0, 2]
+];
 export const PLAYER_DRAW_Z = 0.82;
 export const BASE_WORLD_SPEED = 0.58;
 export const LEVEL_TRAVEL_RATE = 1.42;
@@ -193,6 +198,7 @@ export const state = {
   playerDisplayName: "",
   rankingSaved: false,
   pendingCollisionReason: null,
+  hazardWavePatternIndex: 0,
   usedQuestionIdsByLevel: {},
   usedBossQuestionIdsByLevel: {}
 };

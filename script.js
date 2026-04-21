@@ -4,8 +4,7 @@ import {
   lanes,
   FIXED_SPAWN_INTERVAL,
   HAZARD_SPAWN_INTERVAL,
-  HAZARD_WAVE_MAX,
-  HAZARD_WAVE_MIN,
+  HAZARD_WAVE_PATTERNS,
   PICKUP_SPAWN_INTERVAL,
   PLAYER_DRAW_Z,
   BASE_WORLD_SPEED,
@@ -406,6 +405,7 @@ function resetState() {
   state.levelDistance = 0;
   state.rankingSaved = false;
   state.pendingCollisionReason = null;
+  state.hazardWavePatternIndex = 0;
   state.usedQuestionIdsByLevel = {};
   state.usedBossQuestionIdsByLevel = {};
   stopTrack(levelOneThemeAudio, true);
@@ -727,21 +727,27 @@ function spawnHazard() {
 }
 
 function spawnHazardWave() {
-  const availableLanes = getAvailableHazardLanes();
-  if (!availableLanes.length) {
+  const patternCount = HAZARD_WAVE_PATTERNS.length;
+  if (!patternCount) {
     return 0;
   }
 
-  const waveSize = clamp(
-    HAZARD_WAVE_MIN + Math.floor(Math.random() * (HAZARD_WAVE_MAX - HAZARD_WAVE_MIN + 1)),
-    1,
-    availableLanes.length
-  );
   const hazardChoices = ["cone", "oil", "hole", "truck", "cone", "oil", "truck"];
+  const pattern = HAZARD_WAVE_PATTERNS[state.hazardWavePatternIndex % patternCount];
+  state.hazardWavePatternIndex = (state.hazardWavePatternIndex + 1) % patternCount;
+
+  const laneQueue = pattern.filter((laneIndex, position, lanesInPattern) => {
+    return lanesInPattern.indexOf(laneIndex) === position && !hasHazardTooCloseInLane(laneIndex);
+  });
+
+  if (!laneQueue.length) {
+    return 0;
+  }
+
   let spawned = 0;
 
-  while (spawned < waveSize && availableLanes.length) {
-    const laneIndex = availableLanes.splice(Math.floor(Math.random() * availableLanes.length), 1)[0];
+  while (laneQueue.length) {
+    const laneIndex = laneQueue.shift();
     createObject(randomItem(hazardChoices), laneIndex);
     spawned += 1;
   }
